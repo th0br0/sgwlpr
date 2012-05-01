@@ -1,7 +1,7 @@
-package name.mkdir.gwlpr.packets.c2s
+package name.mkdir.gwlpr.login.c2s
 
-import name.mkdir.gwlpr.packets.PacketAnnotations._
-import name.mkdir.gwlpr.packets.Packet
+import name.mkdir.gwlpr.PacketAnnotations._
+import name.mkdir.gwlpr.Packet
 
 case class ComputerInfoReply(staticData: Long = 0x71953D3D, loginCount: Long, data3: Long = 0, data4: Long = 1) extends Packet{
     def header = 1

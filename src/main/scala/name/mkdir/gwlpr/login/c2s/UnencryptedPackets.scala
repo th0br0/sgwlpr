@@ -1,7 +1,7 @@
-package name.mkdir.gwlpr.packets.c2s
+package name.mkdir.gwlpr.login.c2s
 
-import name.mkdir.gwlpr.packets.Packet
-import name.mkdir.gwlpr.packets.PacketAnnotations._
+import name.mkdir.gwlpr.Packet
+import name.mkdir.gwlpr.PacketAnnotations._
 
 case class ClientVersionPacket(data1: Int, clientVersion: Long, data3: Long, data4: Long) extends Packet {
     def header = 1024

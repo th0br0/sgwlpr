@@ -1,19 +1,24 @@
 package name.mkdir.gwlpr
 
+import scala.collection.mutable.HashMap
+
+import com.eaio.uuid.UUID
+
 import akka.actor._
 import akka.util.{ ByteString, ByteStringBuilder }
 import java.net.InetSocketAddress
 import akka.serialization._
 
-import name.mkdir.gwlpr.packets._
-import name.mkdir.gwlpr.packets.c2s._
-import name.mkdir.gwlpr.packets.s2c._
+import name.mkdir.gwlpr.login.c2s._
+import name.mkdir.gwlpr.login.s2c._
 
 class ClientRegistry(port: Int) extends Actor {
   import IO._
 
-  val state = IterateeRef.Map.async[IO.Handle]()(context.dispatcher)
-  val serializer = SerializationExtension(ActorSystem()).serializerFor(classOf[Packet]) 
+  val sessions = new HashMap[UUID, Session]
+
+  val loginSerializer = SerializationExtension(ActorSystem()).serializerFor(classOf[LoginPacket]) 
+  val gameSerializer = None //TODO: SerializationExtension(ActorSystem()).serializerFor(classOf[GamePacket]) 
 
   override def preStart {
     IOManager(context.system) listen new InetSocketAddress(port)
@@ -23,17 +28,24 @@ class ClientRegistry(port: Int) extends Actor {
 
     case NewClient(server) => {
       val socket = server.accept()
-      println("serializer: " + serializer)
-      state(socket) flatMap (_ => ClientRegistry.processPacket(socket))
+      sessions += (socket.uuid -> Session(socket))  
     }
 
     case Read(socket, bytes) => {
-      println(serializer)
+      val session = sessions(socket.uuid)
+
       println("---------------------------------------------------------------------")
       println("Length: " + bytes.size)
       println("Content: " + bytes)
+      println("Socket: " + socket)
       
-      val packets = serializer.fromBinary(bytes.toArray, manifest = None)
+      val packets = {
+        if(session.isLoggedIn)
+          loginSerializer.fromBinary(bytes.toArray, manifest = None)
+        else
+          Nil
+      }
+
       println("Result: " + packets)
 
 
@@ -55,33 +67,14 @@ class ClientRegistry(port: Int) extends Actor {
 
       println("Sent: " + outgoing.reverse)
       if(!outgoing.isEmpty)
-        socket.asSocket.write(outgoing.map(p => ByteString(serializer.toBinary(p))).foldLeft(ByteString())(_++_))
+        // FIXME: use PacketParser directly here?
+        session.socket.write(outgoing.map(p => ByteString(loginSerializer.toBinary(p))).foldLeft(ByteString())(_++_))
 
       //        state(socket)(Chunk(bytes))
     }
 
     case Closed(socket, cause) =>
-      state(socket)(EOF(None))
-      state -= socket
+      sessions -= socket.uuid
     }
 }
 
-object ClientRegistry {
-  import IO._
-  import java.nio.ByteOrder
-  def processPacket(socket: IO.SocketHandle) : IO.Iteratee[Unit] = {
-    repeat {
-      for {
-        headerByteString <- take(2)
-
-      } yield {
-        val header = headerByteString.asByteBuffer
-
-        header.order(ByteOrder.LITTLE_ENDIAN)
-        header.flip()
-
-        println("header: " + (header.getShort() & 0xFFFF))
-      }
-    }
-  }
-}

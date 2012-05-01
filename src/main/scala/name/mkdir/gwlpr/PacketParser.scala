@@ -1,7 +1,24 @@
-package name.mkdir.gwlpr.packets
+package name.mkdir.gwlpr
 
 import java.nio.ByteBuffer
 import name.mkdir.gwlpr.Config
+
+import annotation.target.field
+
+object PacketAnnotations {
+    type ArrayInfo = name.mkdir.gwlpr.PacketArray @field
+}
+
+trait Packet { 
+    def header: Short
+}
+
+case object PacketError extends Packet {
+    def header = -1
+}
+
+trait LoginPacket extends Packet {}
+trait GamePacket extends Packet {}
 
 object PacketParser {
     val byteMask: Short = 0xFF

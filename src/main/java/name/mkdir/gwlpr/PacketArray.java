@@ -1,4 +1,4 @@
-package name.mkdir.gwlpr.packets;
+package name.mkdir.gwlpr;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

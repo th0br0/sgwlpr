@@ -1,24 +1,12 @@
-package name.mkdir.gwlpr.packets
+package name.mkdir.gwlpr.login
 
 import akka.serialization._
 import akka.util.ByteString
 import java.nio.{ByteBuffer, ByteOrder}
-import annotation.target.field
 
+import name.mkdir.gwlpr._
 import c2s._
 import s2c._
-
-object PacketAnnotations {
-    type ArrayInfo = name.mkdir.gwlpr.packets.PacketArray @field
-}
-
-trait Packet { 
-    def header: Short
-}
-
-case object PacketError extends Packet {
-    def header = -1
-}
 
 class Serializer extends akka.serialization.Serializer {
     def includeManifest: Boolean = false

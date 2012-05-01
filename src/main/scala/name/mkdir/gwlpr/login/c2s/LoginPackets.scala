@@ -1,9 +1,9 @@
-package name.mkdir.gwlpr.packets.c2s
+package name.mkdir.gwlpr.login.c2s
 
 import name.mkdir.gwlpr.Config
 
-import name.mkdir.gwlpr.packets.PacketAnnotations._
-import name.mkdir.gwlpr.packets.Packet
+import name.mkdir.gwlpr.PacketAnnotations._
+import name.mkdir.gwlpr.Packet
 
 case class KeepAlivePacket(data1: Long) extends Packet {
     def header = 0
