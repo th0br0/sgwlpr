@@ -5,30 +5,45 @@ import akka.util.ByteString
 import java.nio.{ByteBuffer, ByteOrder}
 import annotation.target.field
 
+import c2s._
+import s2c._
+
 object PacketAnnotations {
     type ArrayInfo = name.mkdir.gwlpr.packets.PacketArray @field
 }
 
 trait Packet { 
-    def header: Int
+    def header: Short
+}
+
+case object PacketError extends Packet {
+    def header = -1
 }
 
 class Serializer extends akka.serialization.Serializer {
     def includeManifest: Boolean = false
     def identifier = 1203981
 
-    def toBinary(obj: AnyRef): Array[Byte] = 
-        Array[Byte](0) //TODO: implement this
+    def toBinary(obj: AnyRef): Array[Byte] = PacketParser.unapply(obj.asInstanceOf[Packet])
 
     def fromBinary(bytes: Array[Byte], clazz: Option[Class[_]]): AnyRef = {
         val bb = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN) // should this be little endian???
-        println(bb.getShort() match {
+        var packets : List[Packet] = Nil
+        while(bb.hasRemaining)
+          packets = (bb.getShort() match {
+
+            case 0 => PacketParser(classOf[KeepAlivePacket], bb)
+            case 1 => PacketParser(classOf[ComputerInfoPacket], bb)
+            case 4 => PacketParser(classOf[AccountLoginPacket], bb)
+
+            case 35 => PacketParser(classOf[ClientIDPacket], bb)
+            case 53 => PacketParser(classOf[ResponseRequestPacket], bb)
+            // These are unencrypted
             case 1024 => PacketParser(classOf[ClientVersionPacket], bb)
             case 16896 => PacketParser(classOf[ClientSeedPacket], bb)
-        })
+            case _ => PacketError
+        }) :: packets
 
-
-
-        ""
+        packets.reverse.asInstanceOf[AnyRef]
       }
 }
