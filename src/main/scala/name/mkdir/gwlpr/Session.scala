@@ -4,6 +4,8 @@ import com.eaio.uuid.UUID
 import akka.actor.IO.SocketHandle
 import akka.util.ByteString
 
+import login.LoginSession
+
 case class Session(
     socket: SocketHandle
   )
@@ -13,6 +15,10 @@ case class Session(
     var isLoggedIn = false
 
     var user : Option[UserData] = None   
+
+// Should these really be val's?
+    val loginSession = LoginSession()
+//  val gameSession = GameSession()
 
     def write(b: ByteString) = socket.write(b)
 }

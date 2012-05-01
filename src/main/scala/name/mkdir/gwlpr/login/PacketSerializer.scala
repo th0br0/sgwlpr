@@ -8,7 +8,7 @@ import name.mkdir.gwlpr._
 import c2s._
 import s2c._
 
-class Serializer extends akka.serialization.Serializer {
+class PacketSerializer extends akka.serialization.Serializer {
     def includeManifest: Boolean = false
     def identifier = 1203981
 
