@@ -1,5 +1,3 @@
-A sample for the Typesafe Stack (http://typesafe.com/stack).
+A Guild Wars 1 Lan Private Server written in Scala
 
-Akka 2.0 sample project using Scala and SBT.
-
-To run and test it use SBT invoke: 'sbt run'
+Thanks to the guys who did the initial gwlpr & gwlpr code and reversing!
