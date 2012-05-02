@@ -25,15 +25,13 @@ class PacketSerializer extends akka.serialization.Serializer {
             case 4 => PacketParser(classOf[AccountLoginPacket], bb)
             case 13 => PacketParser(classOf[LogoutPacket], bb)
             case 15 => PacketParser(classOf[ComputerHardwarePacket], bb)
+            case 19 => PacketParser(classOf[Packet19], bb)
             case 35 => PacketParser(classOf[ClientIDPacket], bb)
             case 53 => PacketParser(classOf[ResponseRequestPacket], bb)
             // These are unencrypted
             case 1024 => PacketParser(classOf[ClientVersionPacket], bb)
             case 16896 => PacketParser(classOf[ClientSeedPacket], bb)
 
-
-            // ??? Or is ComputerHW longer than 16? weird!
-            case 19 => PacketParser(classOf[Packet19], bb)
 
             case _ => PacketError
           }) :: packets
