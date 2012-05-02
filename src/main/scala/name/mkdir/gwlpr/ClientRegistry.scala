@@ -16,7 +16,7 @@ class ClientRegistry(port: Int) extends Actor {
   import IO._
 
   val system = ActorSystem()
-  val sessions = new HashMap[UUID, Session]
+  val sessions = new HashMap[UUID, ActorRef]
   val loginServer = system.actorOf(Props[LoginServer], name="login")
 
   val loginSerializer = SerializationExtension(ActorSystem()).serializerFor(classOf[LoginPacket]) 
@@ -29,22 +29,18 @@ class ClientRegistry(port: Int) extends Actor {
   def receive = {
 
     case NewClient(server) => {
-      val socket = server.accept()
-      sessions += (socket.uuid -> Session(socket))  
+        val socket = server.accept()
+        sessions += (socket.uuid -> loginServer)
+
+        sessions(socket.uuid) ! NewClientEvent(Session(socket))
     }
 
-    case Read(socket, bytes) => {
-      val session = sessions(socket.uuid)
-
-      if(!session.isLoggedIn) {
-        loginServer ! MessageEvent(session, loginSerializer.fromBinary(bytes.toArray, manifest = None).asInstanceOf[List[Packet]])
-      }
-      else
-        println("oops")
-    }
+    case Read(socket, bytes) => 
+        println("incoming(" + bytes.length + "): " + bytes)
+      sessions(socket.uuid) ! MessageEvent(socket.uuid, loginSerializer.fromBinary(bytes.toArray, manifest = None).asInstanceOf[List[Packet]].filterNot(_ == PacketError))
 
     case Closed(socket, cause) =>
-    sessions -= socket.uuid
+      sessions -= socket.uuid
   }
 }
 

@@ -9,16 +9,12 @@ object PacketAnnotations {
     type ArrayInfo = name.mkdir.gwlpr.PacketArray @field
 }
 
-trait Packet { 
-    def header: Short
-}
+abstract class Packet(val header: Short)
 
-case object PacketError extends Packet {
-    def header = -1
-}
+case object PacketError extends Packet(-1)
 
-trait LoginPacket extends Packet {}
-trait GamePacket extends Packet {}
+sealed abstract trait LoginPacket
+sealed abstract trait GamePacket
 
 object PacketParser {
     val byteMask: Short = 0xFF
@@ -39,7 +35,7 @@ object PacketParser {
     private def readFloat(buf: ByteBuffer): Float = buf.getFloat()
     def apply[T <: Packet](clazz: Class[T], buf: ByteBuffer) : T = {
 
-      val args = clazz.getDeclaredFields().map { case f => (f.getGenericType() match {
+      val args = clazz.getDeclaredFields().filter(_.getModifiers() == 18).map { case f => (f.getGenericType() match {
             case BYTE => readByte(buf)
             case UINT16 => readUInt16(buf)
             case UINT32 => readUInt32(buf)
@@ -53,10 +49,11 @@ object PacketParser {
             }
 
             case BYTEARRAY => {
-                val info = f.getDeclaredAnnotations()(0).asInstanceOf[PacketArray] // this might crash but I don't care.
+                val ann = f.getDeclaredAnnotations()
+                lazy val info = ann(0).asInstanceOf[PacketArray] 
                 val limit = buf.limit()
                 
-                val length = {if(info.constSize) info.size else readUInt16(buf)}
+                val length = {if(ann.length > 0 && info.constSize) info.size else readUInt16(buf)}
                 val arr = new Array[Byte](length)
                 buf.get(arr)
 
@@ -84,12 +81,16 @@ object PacketParser {
             case STRING => {
                 f.setAccessible(true)
                 val str = f.get(obj).asInstanceOf[String]
-                str.length * 2
+                str.length * 2 + 2
             }
             case BYTEARRAY => {
                 f.setAccessible(true)
                 val barr = f.get(obj).asInstanceOf[Array[Byte]]
-                barr.length
+                val anno = f.getDeclaredAnnotations()
+                if(anno.length == 0)
+                    barr.length + 2
+                else
+                    barr.length
             }
             case INTARRAY => throw new RuntimeException("implement me"); 0
             case LONGARRAY => throw new RuntimeException("implement me"); 0
@@ -106,11 +107,19 @@ object PacketParser {
             case STRING => {
               f.setAccessible(true); 
                 val str = f.get(obj).asInstanceOf[String]
+                buf.putShort(str.length.toShort)
                 buf.put(str.getBytes(Config.charSet)) 
             }
             case BYTEARRAY => {
               f.setAccessible(true); 
-                val barr = f.get(obj).asInstanceOf[Array[Byte]]
+              
+              val barr = f.get(obj).asInstanceOf[Array[Byte]]
+              val anno = f.getDeclaredAnnotations()
+              
+              if(anno.length == 0 || !anno(0).asInstanceOf[PacketArray].constSize) {
+                buf.putShort(barr.size.toShort)
+                buf.put(barr)
+              } else
                 buf.put(barr)
             }
             case INTARRAY => throw new RuntimeException("implement me"); 0

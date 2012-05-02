@@ -1,5 +1,8 @@
 package name.mkdir.gwlpr
 
-abstract sealed trait Event {}
+import com.eaio.uuid.UUID
 
-case class MessageEvent(session: Session, packets: List[Packet]) extends Event
+sealed abstract trait Event {}
+
+case class NewClientEvent(session: Session) extends Event
+case class MessageEvent(uuid: UUID, packets: List[Packet]) extends Event
