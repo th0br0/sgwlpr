@@ -1,44 +1,43 @@
 package name.mkdir.gwlpr.login
 
-import com.eaio.uuid.UUID
+import java.net.InetSocketAddress
+
 import scala.collection.mutable.HashMap
 
 import akka.actor._
+import akka.event.Logging
 import akka.util.{ ByteString, ByteStringBuilder }
-import java.net.InetSocketAddress
 import akka.serialization._
 
-import c2s._
-import s2c._
+import com.eaio.uuid.UUID
 
 import name.mkdir.gwlpr._
 
-class LoginServer extends Actor {
+class LoginServer(val port: Int) extends ClientRegistry {
   import IO._
 
-  val sessions = new HashMap[UUID, Session]()
+  val serializer = SerializationExtension(context.system).serializerFor(classOf[LoginPacket])
+  
 
-  def receive = {
-    case NewClientEvent(session) => sessions += (session.uuid -> session)
-    case MessageEvent(session, packets) => packets foreach {handlePacket(session, _)}
-    case _ => println("weird... this shouldn't be happening...")
+  def clientConnected(session: Session) = {}
+  def clientDisconnected(session: Session) = {}
+  
+  def clientMessage(session: Session, data: Array[Byte]) = 
+    handlePackets(
+        session,
+        serializer.fromBinary(data, manifest = None).asInstanceOf[List[Packet]].filterNot(_ == PacketError)
+      )
 
-  }
+  
+  def handlePackets(session: Session, packets: List[Packet]) = {
 
-  // We should probably collect all outgoing packets in some queue first... but then, we *are* doing that as write sends a message to the IOManager after all!
-  def handlePacket(uuid: UUID, packet: Packet) = {
-
-
-    val session = sessions(uuid)
-
-    println("---------------------------------------------------------------------")
-    println("Source: " + session.socket)
-    println("Packet: " + packet)
+    log.debug("Source: " + session.socket)
+    log.debug("Packets: " + packets)
 
 
-    //TODO: Optimize this.
+    //TODO: Optimise this.
     var outgoing : List[Packet] = Nil
-    packet match {
+    packets.foreach {
       case ClientSeedPacket(seed) => 
         outgoing = ServerSeedPacket(Array[Byte](0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19)) :: outgoing
       case ComputerInfoPacket(user, hostname) => 
@@ -50,13 +49,12 @@ class LoginServer extends Actor {
           ResponseRequestReply(loginCount) :: 
           outgoing
       case p @ AccountLoginPacket(syncCount, _, email, _, charName) => 
+        //TODO: branch this out properly somewhere... some trait maybe?
         session.loginSession.syncCount = syncCount
         
         session.loginSession.email = email
         session.loginSession.password = p.passwordString
         session.loginSession.charName = charName
-
-        println(sessions(uuid).loginSession)
 
         outgoing = StreamTerminatorPacket(syncCount, Error.None) ::
             AccountPermissionsPacket(syncCount) ::
@@ -65,15 +63,15 @@ class LoginServer extends Actor {
 
 
         outgoing ::= StreamTerminatorPacket(syncCount, Error.None)
+      case CharacterPlayPacket(syncCount, _, _, _, _, _) => outgoing ::= StreamTerminatorPacket(syncCount, Error.NetworkError)
       case LogoutPacket(_) => 
-        println("TODO: clean up the ClientRegistry session map every once in a while")
-        sessions -= uuid
+        log.warning("TODO: clean up the ClientRegistry session map every once in a while")
       case _ => 
     }     
 
     outgoing = outgoing.reverse
 
-    println("Sent: " + outgoing.reverse)
+    log.debug("Sent: " + outgoing.reverse)
     if(!outgoing.isEmpty)
       session.write(outgoing.map(p => ByteString(PacketParser.unapply(p))).foldLeft(ByteString())(_++_))
 

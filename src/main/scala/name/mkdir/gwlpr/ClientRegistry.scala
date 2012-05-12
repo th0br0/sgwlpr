@@ -12,35 +12,39 @@ import akka.serialization._
 import name.mkdir.gwlpr.login.LoginServer
 
 
-class ClientRegistry(port: Int) extends Actor {
+trait ClientRegistry extends Actor with ActorLogging {
   import IO._
 
-  val system = ActorSystem()
-  val sessions = new HashMap[UUID, ActorRef]
-  val loginServer = system.actorOf(Props[LoginServer], name="login")
+  def port: Int
+  
+  lazy val socketAddress = new InetSocketAddress(port)
 
-  val loginSerializer = SerializationExtension(ActorSystem()).serializerFor(classOf[LoginPacket]) 
-  val gameSerializer = None //TODO: SerializationExtension(ActorSystem()).serializerFor(classOf[GamePacket]) 
+  val sessions = new HashMap[UUID, Session]
 
+  def clientConnected(session: Session)
+  def clientDisconnected(session: Session)
+  def clientMessage(session: Session, data: Array[Byte])
   override def preStart {
-    IOManager(context.system) listen new InetSocketAddress(port)
+    IOManager(context.system) listen socketAddress
   }
 
   def receive = {
 
-    case NewClient(server) => {
+    case NewClient(server) => 
         val socket = server.accept()
-        sessions += (socket.uuid -> loginServer)
-
-        sessions(socket.uuid) ! NewClientEvent(Session(socket))
-    }
+        sessions += (socket.uuid -> Session(socket))
+        clientConnected(sessions(socket.uuid))
 
     case Read(socket, bytes) => 
-        println("incoming(" + bytes.length + "): " + bytes)
-      sessions(socket.uuid) ! MessageEvent(socket.uuid, loginSerializer.fromBinary(bytes.toArray, manifest = None).asInstanceOf[List[Packet]].filterNot(_ == PacketError))
-
+        log.debug("--------------------------------------------------------------------------------------")
+        log.debug("Incoming: " + bytes)
+       clientMessage(sessions(socket.uuid), bytes.toArray) 
+    
     case Closed(socket, cause) =>
+      clientDisconnected(sessions(socket.uuid))
+
       sessions -= socket.uuid
+
   }
 }
 
