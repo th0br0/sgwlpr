@@ -41,7 +41,7 @@ class LoginServer(val port: Int) extends ClientRegistry {
       case ClientSeedPacket(seed) => 
         outgoing = ServerSeedPacket(Array[Byte](0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19)) :: outgoing
       case ComputerInfoPacket(user, hostname) => 
-        outgoing = ComputerInfoReply(syncCount = 0) :: outgoing
+        outgoing = ComputerInfoReply(syncCount = session.loginSession.syncCount) :: outgoing
       case ResponseRequestPacket(syncCount) =>
         session.loginSession.syncCount = syncCount
         outgoing = 
@@ -66,6 +66,7 @@ class LoginServer(val port: Int) extends ClientRegistry {
       case CharacterPlayPacket(syncCount, _, _, _, _, _) => outgoing ::= StreamTerminatorPacket(syncCount, Error.NetworkError)
       case LogoutPacket(_) => 
         log.warning("TODO: clean up the ClientRegistry session map every once in a while")
+      case ExitPacket(exitCode) => 
       case _ => 
     }     
 

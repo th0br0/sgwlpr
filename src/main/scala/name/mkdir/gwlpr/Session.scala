@@ -7,14 +7,12 @@ import akka.util.ByteString
 import login.LoginSession
 
 case class Session(
-    socket: SocketHandle
+    var socket: SocketHandle // nasty, but this value changes in between transitions.
   )
 {
     val uuid = socket.uuid
 
     var isLoggedIn = false
-
-    var user : Option[UserData] = None   
 
 // Should these really be val's?
     val loginSession = LoginSession()
@@ -23,9 +21,6 @@ case class Session(
     def write(b: ByteString) = socket.write(b)
 }
 
-case class UserData(
-  email: String
-)
 
 
 
