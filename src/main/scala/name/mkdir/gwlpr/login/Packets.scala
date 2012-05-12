@@ -13,7 +13,7 @@ case class KeepAlivePacket(data1: Long) extends Packet(0)
 
 case class ComputerInfoPacket(user: String, hostname: String) extends Packet(1) 
 
-case class AccountLoginPacket(loginCount: Long, @ArrayInfo(constSize = true, size = 24) password: Array[Byte], email: String, data2: String, charName: String) extends Packet(4) {
+case class AccountLoginPacket(syncCount: Long, @ArrayInfo(constSize = true, size = 24) password: Array[Byte], email: String, data2: String, charName: String) extends Packet(4) {
     lazy val passwordString = 
       // maxSize is < 0xFF anyway ;S
       new String(password.drop(2).take(password(0)), Config.charSet)
@@ -26,9 +26,9 @@ case class ComputerHardwarePacket(data1: Array[Byte], @ArrayInfo(constSize = tru
 
 case class ClientIDPacket(data1: Long) extends Packet(35)
 
-case class CharacterPlayPacket(loginCount: Long, data2: Long, gameMapId: Long, data4: Long, data5: Long, data6: Long) extends Packet(41)
+case class CharacterPlayPacket(syncCount: Long, data2: Long, gameMapId: Long, data4: Long, data5: Long, data6: Long) extends Packet(41)
 
-case class ResponseRequestPacket(loginCount: Long) extends Packet(53)
+case class ResponseRequestPacket(syncCount: Long) extends Packet(53)
 
 
 
@@ -43,11 +43,11 @@ case class Packet19(data1: Long, data2: Long) extends Packet(19)
 // ------------------------------------------------
 
 
-case class ComputerInfoReply(staticData: Long = 0x71953D3D, loginCount: Long, data3: Long = 0, data4: Long = 1) extends Packet(1)
+case class ComputerInfoReply(staticData: Long = 0x71953D3D, syncCount: Long, data3: Long = 0, data4: Long = 1) extends Packet(1)
 
-case class StreamTerminatorPacket(loginCount: Long, errorCode: Long = 0) extends Packet(3)
+case class StreamTerminatorPacket(syncCount: Long, errorCode: Long = 0) extends Packet(3)
 
-case class ResponseRequestReply(loginCount: Long, data1: Long = 0) extends Packet(38)
+case class ResponseRequestReply(syncCount: Long, data1: Long = 0) extends Packet(38)
 
 case class CharacterInfoPacket(syncCount: Long, @ArrayInfo(constSize = true, size = 16) staticHash1 : Array[Byte] = new Array[Byte](16), staticData: Long = 0, charName: String, appearance: Array[Byte]) extends Packet(7)
 

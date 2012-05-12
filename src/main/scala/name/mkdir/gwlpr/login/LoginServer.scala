@@ -41,12 +41,12 @@ class LoginServer(val port: Int) extends ClientRegistry {
       case ClientSeedPacket(seed) => 
         outgoing = ServerSeedPacket(Array[Byte](0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19)) :: outgoing
       case ComputerInfoPacket(user, hostname) => 
-        outgoing = ComputerInfoReply(loginCount = 0) :: outgoing
-      case ResponseRequestPacket(loginCount) =>
-        session.loginSession.syncCount = loginCount
+        outgoing = ComputerInfoReply(syncCount = 0) :: outgoing
+      case ResponseRequestPacket(syncCount) =>
+        session.loginSession.syncCount = syncCount
         outgoing = 
-          StreamTerminatorPacket(loginCount) ::
-          ResponseRequestReply(loginCount) :: 
+          StreamTerminatorPacket(syncCount) ::
+          ResponseRequestReply(syncCount) :: 
           outgoing
       case p @ AccountLoginPacket(syncCount, _, email, _, charName) => 
         //TODO: branch this out properly somewhere... some trait maybe?
