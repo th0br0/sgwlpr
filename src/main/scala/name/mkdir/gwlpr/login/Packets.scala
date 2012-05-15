@@ -49,6 +49,7 @@ case class StreamTerminatorPacket(syncCount: Long, errorCode: Long = 0) extends 
 
 case class CharacterInfoPacket(syncCount: Long, @ArrayInfo(constSize = true, size = 16) staticHash1 : Array[Byte] = new Array[Byte](16), staticData: Long = 0, charName: String, appearance: Array[Byte]) extends Packet(7)
 
+//TODO: find a proper name.
 case class ReferToGameServerPacket(syncCount: Long, @ArrayInfo(constSize = true, size = 4) securityKey1: Array[Byte], mapId: Long, @ArrayInfo(constSize = true, size = 24) serverInfo: Array[Byte], @ArrayInfo(constSize = true, size = 4) securityKey2: Array[Byte]) extends Packet(9)
 
 case class ResponseRequestReply(syncCount: Long, data1: Long = 0) extends Packet(38)

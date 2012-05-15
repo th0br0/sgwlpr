@@ -31,8 +31,10 @@ trait ClientRegistry extends Actor with ActorLogging {
   def receive = {
 
     case NewClient(server) => 
+
         val socket = server.accept()
-        sessions += (socket.uuid -> Session(socket))
+        log.debug("new client! : " + socket.uuid)
+        sessions += socket.uuid -> Session(socket)
         clientConnected(sessions(socket.uuid))
 
     case Read(socket, bytes) => 

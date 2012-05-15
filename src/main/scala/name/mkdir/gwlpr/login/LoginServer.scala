@@ -6,8 +6,10 @@ import scala.collection.mutable.HashMap
 
 import akka.actor._
 import akka.event.Logging
-import akka.util.{ ByteString, ByteStringBuilder }
+import akka.util.{ ByteString, ByteStringBuilder, Timeout }
+import akka.util.duration._
 import akka.serialization._
+import akka.pattern.ask
 
 import com.eaio.uuid.UUID
 
@@ -17,7 +19,7 @@ class LoginServer(val port: Int) extends ClientRegistry {
   import IO._
 
   val serializer = SerializationExtension(context.system).serializerFor(classOf[LoginPacket])
-  
+  lazy val registrationServer = context.actorFor("../registration")
 
   def clientConnected(session: Session) = {}
   def clientDisconnected(session: Session) = {}
@@ -63,7 +65,30 @@ class LoginServer(val port: Int) extends ClientRegistry {
 
 
         outgoing ::= StreamTerminatorPacket(syncCount, Error.None)
-      case CharacterPlayPacket(syncCount, _, _, _, _, _) => outgoing ::= StreamTerminatorPacket(syncCount, Error.NetworkError)
+      case CharacterPlayPacket(syncCount, _, mapId, _, _, _) => 
+        session.loginSession.syncCount = syncCount
+        if(mapId == 0) { // Registration "map"
+            log.debug(session.uuid + " requests transfer to registration server")
+            
+            implicit val timeout = Timeout(5 seconds) // TODO: FIXME. The value for this should be stored elsewhere. In the config?
+
+            //TODO: FIXME: this is bad code.
+            ask(registrationServer, ClientTransferRequest(session)) onSuccess {
+                case ClientAccepted(ip, port) => 
+                    log.debug("client got accepted at registration server at " + ip + ":" + port)
+
+                    import java.nio.{ByteBuffer, ByteOrder}
+                    val bb = ByteBuffer.allocate(24).order(ByteOrder.LITTLE_ENDIAN)
+                    bb.putShort(2)
+                    bb.putShort(0xB11F.toShort)
+                    bb.put(127:Byte); bb.put(0:Byte); bb.put(0:Byte); bb.put(1:Byte)
+
+                    val serverInfo = bb.array()
+                    val p = ReferToGameServerPacket(session.loginSession.syncCount, session.securityKey1, mapId, serverInfo, session.securityKey2)
+                    session.write(ByteString(PacketParser.unapply(p)))
+                case ClientRejected => session.write(ByteString(PacketParser.unapply(StreamTerminatorPacket(session.loginSession.syncCount, Error.NetworkError))))
+            }
+        }
       case LogoutPacket(_) => 
         log.warning("TODO: clean up the ClientRegistry session map every once in a while")
       case ExitPacket(exitCode) => 
