@@ -17,7 +17,7 @@ object FieldTypes {
   case object Vec4 extends FieldType("Vector4", 4 * 4)
   case object Uuid16 extends FieldType("?uuid16", 16) // XXX - What is the size of a uuid?
   case object Uuid28 extends FieldType("?uuid28", 28)
-  case object AgentId extends FieldType("Int", 4) // XXX - this should be AgentId and use implicits
+  case object AgentId extends FieldType("AgentId", 4) // XXX - this should be AgentId and use implicits
   case object Ascii extends FieldType("String", 2) // XXX - is this right?
   case object Utf16 extends FieldType("String", 2) // XXX - should be right?
   case object Packed extends FieldType("?packed", -65535) // XXX - FixMe.
