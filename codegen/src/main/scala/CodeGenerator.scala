@@ -136,7 +136,7 @@ object CodeGenerator {
         }) + "\n"
       })
     template.setAttribute("class", packet.name)
-    template.setAttribute("params", packet.fields.foldLeft("") { (a, b) => a + ", " + b.info.name.get } drop (2))
+    template.setAttribute("params", packet.fields.map(_.info.name.get).mkString(", "))
 
     template.toString
   }
@@ -160,8 +160,7 @@ object CodeGenerator {
   def deserialiseNested(clazz: String, num: Int, field: NestedField): String = {
     val tmpl = "%s.NestedPacket%s(%s)"
 
-    val cmd = tmpl.format(clazz, num,
-      field.members.foldLeft("") { (a, b) => a + ", " + deserialiseField(b) } drop (2))
+    val cmd = tmpl.format(clazz, num, field.members.map(deserialiseField).mkString(", "))
 
     if (field.arrayInfo == None)
       cmd
@@ -169,7 +168,7 @@ object CodeGenerator {
       val ai = field.arrayInfo.get
       val pre = deserialiseFieldType(ai.prefixType)
       if (ai.fixedLength)
-        "List(%s)".format(Iterator.fill(ai.length)(cmd).foldLeft("") { (a, b) => a + ", " + b } drop (2))
+        "List(%s)".format(Iterator.fill(ai.length)(cmd).mkString(", "))
       else """{
                     val tmp = %s
                     Iterator.range(0, tmp).toList.map(_ => %s)
@@ -199,7 +198,7 @@ object CodeGenerator {
       } else {
 
         if (ai.fixedLength)
-          "List(%s)".format(Iterator.fill(ai.length)(cmd).foldLeft("") { (a, b) => a + ", " + b } drop (2))
+          "List(%s)".format(Iterator.fill(ai.length)(cmd).mkString(", "))
         else
           """{
                     val tmp = %s
