@@ -7,7 +7,9 @@ import java.net.InetSocketAddress
 
 import scala.collection.mutable.HashMap
 
-trait ServerTrait[T <: Session] extends Actor with ActorLogging with ProvidesSession[T]{
+import packets._
+
+trait ServerTrait[T <: Session] extends Actor with ActorLogging with ProvidesSession[T]  with SeedHandler[T] {
     import IO._
     
     /** the port to listen on */
@@ -22,6 +24,35 @@ trait ServerTrait[T <: Session] extends Actor with ActorLogging with ProvidesSes
     def clientConnected(session: T)
     def clientDisconnected(session: T)
     def clientMessage(session: T, buffer: ByteBuffer)
+
+    def deserialisePackets(session: T, buffer: ByteBuffer, deserialise: Deserialiser) : List[Packet] = {
+       // XXX - use a ListBuffer here
+       var ret : List[Packet] = Nil
+
+       val buf = {
+            if(session.buffer == None)
+              buffer
+            else
+              session.buffer.get.put(buffer)
+            }
+
+       def parse(buf: ByteBuffer) : List[Packet] = {
+            if(!buf.hasRemaining) return Nil
+
+            val pos = buf.position
+            val packet = deserialise(buf)
+
+            if(packet.isInstanceOf[PacketError])
+            {
+                buf.position(pos)
+                session.buffer = Some(buf.slice)
+                Nil
+            } else
+                List(packet) ::: parse(buf)
+       }
+        
+       parse(buf)
+    }
 
     def receive = {
       case NewClient(server) => {

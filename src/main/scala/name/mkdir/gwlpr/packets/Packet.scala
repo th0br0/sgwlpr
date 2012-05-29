@@ -4,12 +4,15 @@ import java.nio.ByteBuffer
 
 abstract case class Packet(header: Short) {
     def toBytes : Array[Byte]
+    def size: Int
 }
 case class PacketError(h: Short, source: String) extends Packet(h) {
     def toBytes : Array[Byte] = null
+    def size = 0
 }
 
 // XXX - Rename this.
 trait Deserialiser {
     def apply(buf: ByteBuffer) : Packet
 }
+
