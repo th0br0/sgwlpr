@@ -6,7 +6,6 @@ class $className$($attributes; separator=", "$) extends Packet($header$) with Se
 
     $assertions; separator="\n"$
 
-    $nestedClasses; separator="\n"$
 
     $serialisedoc$
     $serialise$
@@ -16,6 +15,8 @@ class $className$($attributes; separator=", "$) extends Packet($header$) with Se
   * Companion object for $className$
   */
 object $className$ {
+    $nestedClasses; separator="\n"$
+
     $deserialisedoc$
     $deserialise$
 }

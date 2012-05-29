@@ -2,6 +2,7 @@ package name.mkdir.codegen
 
 import org.clapper.scalasti._
 import java.io.File
+import FieldTypes._
 
 object CodeGenerator {
   val stdir = new StringTemplateGroup("tpls", new File("templates"))
@@ -10,8 +11,8 @@ object CodeGenerator {
     val classTemplate = stdir.template("class")
 
     classTemplate.setAttributes(Map(
-      "nestedClasses" -> generateNestedClasses(packet.fields.filter(_.isInstanceOf[NestedField]).asInstanceOf[List[NestedField]]), // XXX - this is a nasty hack
-      "attributes" -> generateAttributes(packet.fields),
+      "nestedClasses" -> generateNestedClasses(packet),
+      "attributes" -> generateAttributes(packet.fields, packet.name),
       "assertions" -> generateAssertions(packet.fields.filter(_.arrayInfo != None)),
       "serialise" -> generateSerialisationFunction(packet),
       "deserialise" -> generateDeserialisationFunction(packet),
@@ -21,14 +22,14 @@ object CodeGenerator {
     classTemplate.toString
   }
 
-  def generateNestedClasses(fields: List[NestedField]): List[String] = {
+  def generateNestedClasses(packet: Packet) : List[String] = {
     var nestedCount = -1
     def currentNested = { nestedCount += 1; nestedCount }
 
-    fields.map { field =>
+    packet.fields.filter(_.isInstanceOf[NestedField]).map { case field: NestedField =>
       val template = stdir.template("nested")
       template.setAttribute("className", "NestedPacket" + currentNested)
-      template.setAttribute("attributes", generateAttributes(field.members))
+      template.setAttribute("attributes", generateAttributes(field.members, packet.name))
       template.toString
     }
   }
@@ -50,7 +51,7 @@ object CodeGenerator {
     }
   }
 
-  def generateAttributes(fields: List[PacketField]): List[String] = {
+  def generateAttributes(fields: List[PacketField], name: String): List[String] = {
     var nestedCount = -1
     def currentNested = { nestedCount += 1; nestedCount }
 
@@ -71,9 +72,9 @@ object CodeGenerator {
         attributeTemplate.setAttribute("name", info.name.get)
         attributeTemplate.setAttribute("type", {
           if (arrayInfo == None)
-            "NestedPacket" + currentNested
+            "%s.NestedPacket%d".format(name, currentNested)
           else
-            "List[NestedPacket" + currentNested + "]"
+            "List[%s.NestedPacket%d]".format(name, currentNested)
         })
         attributeTemplate.toString
     })
@@ -95,11 +96,11 @@ object CodeGenerator {
     if (field.arrayInfo == None)
       field.members.foldRight("") { (b, a) => serialiseFieldType(b.fieldType).format(b.info.name) + a }
     else {
-      val inner = field.members.foldRight("") { (b, a) => serialiseFieldType(b.fieldType).format("i." + b.info.name) + a }
+      val inner = field.members.foldRight("") { (b, a) => serialiseFieldType(b.fieldType).format("i." + b.info.name.get) + a }
 
       {
         val ai = field.arrayInfo.get
-        if (!ai.fixedLength)
+        if (!ai.fixedLength) 
           serialiseFieldType(ai.prefixType).format(field.info.name.get + ".length")
         else ""
       } + "%s.foreach { i => %s }\n".format(field.info.name.get, inner)
@@ -107,7 +108,7 @@ object CodeGenerator {
   }
 
   def serialiseFieldType(fieldType: FieldType): String = (fieldType match {
-    case Int8 => "buf.put(%s)"
+    case Int8 => "buf.put(%s.toByte)"
     case Int16 => "buf.putShort(%s)"
     case Int32 => "buf.putInt(%s)"
     case Int64 => "buf.putLong(%s)"
@@ -157,9 +158,22 @@ object CodeGenerator {
   def deserialiseNested(clazz: String, num: Int, field: NestedField): String = {
     val tmpl = "%s.NestedPacket%s(%s)"
 
-    tmpl.format(clazz, num,
+    val cmd = tmpl.format(clazz, num,
       field.members.foldLeft(""){ (a,b) => a + ", " + deserialiseField(b) } drop(2)
       )
+
+    if(field.arrayInfo == None)
+      cmd
+    else {
+        val ai = field.arrayInfo.get
+        val pre = deserialiseFieldType(ai.prefixType)
+        if(ai.fixedLength)
+          "List(%s)".format( Iterator.fill(ai.length)(cmd).foldLeft(""){ (a,b) => a + ", " + b } drop(2))
+        else """{
+                    val tmp = %s
+                    Iterator.range(0, tmp).toList.map(_ => %s)
+                }""".format(pre, cmd)
+    }
   }
 
   def deserialiseField(field: Field): String = {
@@ -184,7 +198,7 @@ object CodeGenerator {
         } else {
             
             if(ai.fixedLength) 
-                "new List(%s)".format(Iterator.fill(ai.length)(cmd).foldLeft(""){ (a,b) => a + ", " + b } drop(2))
+                "List(%s)".format(Iterator.fill(ai.length)(cmd).foldLeft(""){ (a,b) => a + ", " + b } drop(2))
             else 
                 """{
                     val tmp = %s
