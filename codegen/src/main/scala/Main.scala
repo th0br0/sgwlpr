@@ -2,6 +2,7 @@ package name.mkdir.codegen
 
 import scala.xml._
 import scala.collection._
+import java.io.{File,BufferedWriter,FileWriter}
 
 // What I'd give for autoproxy... 
 sealed abstract class FieldType(val typeMapping: String, val size: Int)
@@ -62,7 +63,7 @@ case class Packet(header: Int, fields: List[PacketField], info: Info) {
     case None => "Packet%d".format(header)
     case Some(name) => name
   }
-  def size = fields.foldLeft(0) { case (a, b) => a + b.size }
+  def size = 2 + fields.foldLeft(0) { case (a, b) => a + b.size }
 }
 
 // XXX - name should not be var
@@ -71,7 +72,7 @@ case class Info(var name: Option[String], description: Option[String], author: O
 object Main extends App {
   override def main(args: Array[String]): Unit = {
     val target = "src-gen"
-    val packageName = "name.mkdir.gwlpr.packets"
+    val packageName = "name.mkdir.gwlpr"
     val fileName = "PacketTemplates.xml"
 
     val packetMap = mutable.Map.empty[String, List[Packet]]
@@ -89,7 +90,25 @@ object Main extends App {
       packetMap += (dir -> packets.map(deserializePacket).toList)
     }
 
-    println(CodeGenerator.generate(packetMap("g2c")(234), packageName, "g2c"))
+    packetMap.toList.foreach { case (d,p) => {
+        import org.clapper.scalasti.StringTemplateGroup
+        val f = new File(target + "/" + d+".scala")
+        f.delete
+        f.createNewFile
+        
+        val bw = new BufferedWriter(new FileWriter(f))
+
+        val tpl = new StringTemplateGroup("", new File("templates")).template("base")
+        tpl.setAttribute("package", packageName)
+        tpl.setAttribute("dir", d)
+        tpl.setAttribute("content", p.foldLeft(""){ (a,b) => a + "\n" + CodeGenerator.generate(b) })
+
+        bw.write(tpl.toString)
+        bw.flush
+        bw.close
+      }}
+
+
   }
 
   implicit def string2Option(str: String): Option[String] = {

@@ -1,5 +1,3 @@
-package $package$.$dir$
-
 $classdoc$
 case class $className$($attributes; separator=", "$) extends Packet($header$) {
     def size : Int = $size$
@@ -10,8 +8,12 @@ case class $className$($attributes; separator=", "$) extends Packet($header$) {
 
     $serialisedoc$
     $serialise$
-    
+}
+
+/**
+  * Companion object for $className$
+  */
+object $className$ {
     $deserialisedoc$
     $deserialise$
 }
-

@@ -6,16 +6,15 @@ import java.io.File
 object CodeGenerator {
   val stdir = new StringTemplateGroup("tpls", new File("templates"))
 
-  def generate(packet: Packet, packageName: String, direction: String): String = {
+  def generate(packet: Packet): String = {
     val classTemplate = stdir.template("class")
 
     classTemplate.setAttributes(Map(
-      "package" -> packageName,
-      "dir" -> direction,
       "nestedClasses" -> generateNestedClasses(packet.fields.filter(_.isInstanceOf[NestedField]).asInstanceOf[List[NestedField]]), // XXX - this is a nasty hack
       "attributes" -> generateAttributes(packet.fields),
       "assertions" -> generateAssertions(packet.fields.filter(_.arrayInfo != None)),
       "serialise" -> generateSerialisationFunction(packet),
+      "deserialise" -> generateDeserialisationFunction(packet),
       "className" -> packet.name,
       "size" -> packet.size,
       "header" -> packet.header))
@@ -113,15 +112,85 @@ object CodeGenerator {
     case Int32 => "buf.putInt(%s)"
     case Int64 => "buf.putLong(%s)"
     case Float => "buf.putFloat(%s)"
-    case Vec2 => "// XXX - Implement Vector2 deserialisation"
-    case Vec3 => "// XXX - Implement Vector3 deserialisation"
-    case Vec4 => "// XXX - Implement Vector4 deserialisation"
-    case Uuid16 => "// XXX - Implement Uuid16 deserialisation"
-    case Uuid28 => "// XXX - Implement Uuid28 deserialisation"
+    case Vec2 | Vec3 | Vec4 => "buf.put(%s)" // XXX - Write implicit for Vector to Array[Byte]
+    case Uuid16 => "// XXX - Implement Uuid16 serialisation"
+    case Uuid28 => "// XXX - Implement Uuid28 serialisation"
     case AgentId => "buf.putInt(%s) // XXX - Implement AgentId"
     case Utf16 => """buf.put(%s.getBytes("UTF-16LE"))"""
     case _ => "// XXX - Unknown field serialised: %s"
   }) + "\n"
+
+  def generateDeserialisationFunction(packet: Packet): String = {
+    val template = stdir.template("deserialise")
+
+    template.setAttribute("content",
+    packet.fields.map { f => 
+        f.info.name.get + " = " + (f match {
+        case f: NestedField => deserialiseNested(f)
+        case f: Field => deserialiseField(f)
+      }) + "\n"})
+    template.setAttribute("class", packet.name)
+    template.setAttribute("params", packet.fields.foldLeft(""){ (a,b) => a + ", " + b.info.name.get} drop(2))
+
+    template.toString
+  }
+  def deserialiseFieldType(fieldType: FieldType): String = (fieldType match {
+    case Int8 => "buf.getByte()"
+    case Int16 => "buf.getShort()"
+    case Int32 => "buf.getInt()"
+    case Int64 => "buf.getLong()"
+    case Float => "buf.getFloat()"
+    case Vec2 => "Vector2(buf.getFloat(), buf.getFloat())"
+    case Vec3 => "Vector3(buf.getFloat(), buf.getFloat(), buf.getFloat())"
+    case Vec4 => "Vector4(buf.getFloat(), buf.getFloat(), buf.getFloat(), buf.getFloat())"
+    case Uuid16 => "// XXX - Implement Uuid16 deserialisation"
+    case Uuid28 => "// XXX - Implement Uuid28 deserialisation"
+    case AgentId => "buf.getInt() // XXX - Implement AgentId"
+    case Utf16 => """buf.put(%s.getBytes("UTF-16LE"))"""
+    case _ => "// XXX - Unknown field deserialised: %s"
+        
+    }) 
+
+  def deserialiseNested(field: NestedField): String = {
+    val tmpl = "%s = Nested%s(%s)"
+
+    tmpl.format(field.info.name.get,
+      "FIXME",
+      field.members.foldLeft(""){ (a,b) => a + ", " + deserialiseField(b) }
+      )
+  }
+
+  def deserialiseField(field: Field): String = {
+    if (field.arrayInfo == None)
+      (deserialiseFieldType(field.fieldType)).format(field.info.name.get)
+    else {
+        val ai = field.arrayInfo.get
+        val cmd = deserialiseFieldType(field.fieldType)
+
+        val pre = deserialiseFieldType(ai.prefixType)
+
+        if(field.fieldType == Utf16) {
+            // XXX - this should be a StringTemplate!
+            // XXX - while currently not the case, Utf16 could also be of fixed length
+            """{
+                    val tmp = %s
+                    val arr = new Array[Byte](tmp)
+                    buf.get(arr)
+                    new String(arr, "UTF-16LE")
+                }
+            """.format(pre)
+        } else {
+            
+            if(ai.fixedLength) 
+                "new List(%s)".format(Iterator.fill(ai.length)(cmd).foldLeft(""){ (a,b) => a + ", " + b } drop(2))
+            else 
+                """{
+                    val tmp = %s
+                    Iterator.range(0, tmp).toList.map(%s)
+                }""".format(pre, cmd)
+        }
+    }
+  }
 
   def serialiseField(field: Field): String = {
     if (field.arrayInfo == None)
@@ -143,4 +212,5 @@ object CodeGenerator {
         }
     }
   }
+
 }
