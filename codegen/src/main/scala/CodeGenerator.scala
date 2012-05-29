@@ -107,12 +107,12 @@ object CodeGenerator {
   }
 
   def serialiseFieldType(fieldType: FieldType): String = (fieldType match {
-    case Int8 => "buf.putByte(%s)"
+    case Int8 => "buf.put(%s)"
     case Int16 => "buf.putShort(%s)"
     case Int32 => "buf.putInt(%s)"
     case Int64 => "buf.putLong(%s)"
     case Float => "buf.putFloat(%s)"
-    case Vec2 | Vec3 | Vec4 => "buf.put(%s)" // XXX - Write implicit for Vector to Array[Byte]
+    case Vec2 | Vec3 | Vec4 => "// XXX - Implement Vector* serialisation"
     case Uuid16 => "// XXX - Implement Uuid16 serialisation"
     case Uuid28 => "// XXX - Implement Uuid28 serialisation"
     case AgentId => "buf.putInt(%s) // XXX - Implement AgentId"
@@ -123,10 +123,13 @@ object CodeGenerator {
   def generateDeserialisationFunction(packet: Packet): String = {
     val template = stdir.template("deserialise")
 
+    // XXX - this is a dirty hack
+    val nesteds = packet.fields.filter(_.isInstanceOf[NestedField]).zipWithIndex.toMap
+
     template.setAttribute("content",
     packet.fields.map { f => 
-        f.info.name.get + " = " + (f match {
-        case f: NestedField => deserialiseNested(f)
+        "val " + f.info.name.get + " = " + (f match {
+        case f: NestedField => deserialiseNested(packet.name, nesteds(f), f)
         case f: Field => deserialiseField(f)
       }) + "\n"})
     template.setAttribute("class", packet.name)
@@ -135,7 +138,7 @@ object CodeGenerator {
     template.toString
   }
   def deserialiseFieldType(fieldType: FieldType): String = (fieldType match {
-    case Int8 => "buf.getByte()"
+    case Int8 => "buf.get()"
     case Int16 => "buf.getShort()"
     case Int32 => "buf.getInt()"
     case Int64 => "buf.getLong()"
@@ -151,12 +154,11 @@ object CodeGenerator {
         
     }) 
 
-  def deserialiseNested(field: NestedField): String = {
-    val tmpl = "%s = Nested%s(%s)"
+  def deserialiseNested(clazz: String, num: Int, field: NestedField): String = {
+    val tmpl = "%s.NestedPacket%s(%s)"
 
-    tmpl.format(field.info.name.get,
-      "FIXME",
-      field.members.foldLeft(""){ (a,b) => a + ", " + deserialiseField(b) }
+    tmpl.format(clazz, num,
+      field.members.foldLeft(""){ (a,b) => a + ", " + deserialiseField(b) } drop(2)
       )
   }
 
@@ -186,7 +188,7 @@ object CodeGenerator {
             else 
                 """{
                     val tmp = %s
-                    Iterator.range(0, tmp).toList.map(%s)
+                    Iterator.range(0, tmp).toList.map(_ => %s)
                 }""".format(pre, cmd)
         }
     }
