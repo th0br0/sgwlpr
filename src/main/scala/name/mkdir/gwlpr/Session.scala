@@ -1,14 +1,18 @@
 package name.mkdir.gwlpr
 
-import com.eaio.uuid.UUID
 import java.nio.ByteBuffer
-import akka.util.ByteString
-
 import java.util.Random
 
-trait ProvidesSession[T >: Session] {
-    def session(uuid: UUID) : T
+import scala.collection.mutable.HashMap
 
+import akka.util.ByteString
+import akka.actor.IO.SocketHandle
+
+import com.eaio.uuid.UUID
+
+trait ProvidesSession[T <: Session] {
+    def sessions : HashMap[UUID, T]
+    def initSession(socket: SocketHandle) : T
     // XXX - Which other methods should be exposed?
     //    def deleteSession(uuid: UUID) : Boolean
 }
@@ -22,9 +26,11 @@ abstract case class Session (
 
     def uuid = socket.uuid
 
-    val securityKeys = List(new Array[Byte](4), new Array[Byte](4))
+    var buffer: Option[ByteBuffer] = None
+    val securityKeys : List[Array[Byte]] = List(new Array[Byte](4), new Array[Byte](4))
+
     {
-        val rnd = Random
+        val rnd = new Random
         rnd.nextBytes(securityKeys(0))
         rnd.nextBytes(securityKeys(1))
     }
