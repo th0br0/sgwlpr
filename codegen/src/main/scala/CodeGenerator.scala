@@ -22,15 +22,16 @@ object CodeGenerator {
     classTemplate.toString
   }
 
-  def generateNestedClasses(packet: Packet) : List[String] = {
+  def generateNestedClasses(packet: Packet): List[String] = {
     var nestedCount = -1
     def currentNested = { nestedCount += 1; nestedCount }
 
-    packet.fields.filter(_.isInstanceOf[NestedField]).map { case field: NestedField =>
-      val template = stdir.template("nested")
-      template.setAttribute("className", "NestedPacket" + currentNested)
-      template.setAttribute("attributes", generateAttributes(field.members, packet.name))
-      template.toString
+    packet.fields.filter(_.isInstanceOf[NestedField]).map {
+      case field: NestedField =>
+        val template = stdir.template("nested")
+        template.setAttribute("className", "NestedPacket" + currentNested)
+        template.setAttribute("attributes", generateAttributes(field.members, packet.name))
+        template.toString
     }
   }
 
@@ -100,7 +101,7 @@ object CodeGenerator {
 
       {
         val ai = field.arrayInfo.get
-        if (!ai.fixedLength) 
+        if (!ai.fixedLength)
           serialiseFieldType(ai.prefixType).format(field.info.name.get + ".length")
         else ""
       } + "%s.foreach { i => %s }\n".format(field.info.name.get, inner)
@@ -128,13 +129,14 @@ object CodeGenerator {
     val nesteds = packet.fields.filter(_.isInstanceOf[NestedField]).zipWithIndex.toMap
 
     template.setAttribute("content",
-    packet.fields.map { f => 
+      packet.fields.map { f =>
         "val " + f.info.name.get + " = " + (f match {
-        case f: NestedField => deserialiseNested(packet.name, nesteds(f), f)
-        case f: Field => deserialiseField(f)
-      }) + "\n"})
+          case f: NestedField => deserialiseNested(packet.name, nesteds(f), f)
+          case f: Field => deserialiseField(f)
+        }) + "\n"
+      })
     template.setAttribute("class", packet.name)
-    template.setAttribute("params", packet.fields.foldLeft(""){ (a,b) => a + ", " + b.info.name.get} drop(2))
+    template.setAttribute("params", packet.fields.foldLeft("") { (a, b) => a + ", " + b.info.name.get } drop (2))
 
     template.toString
   }
@@ -152,24 +154,23 @@ object CodeGenerator {
     case AgentId => "buf.getInt() // XXX - Implement AgentId"
     case Utf16 => """buf.put(%s.getBytes("UTF-16LE"))"""
     case _ => "// XXX - Unknown field deserialised: %s"
-        
-    }) 
+
+  })
 
   def deserialiseNested(clazz: String, num: Int, field: NestedField): String = {
     val tmpl = "%s.NestedPacket%s(%s)"
 
     val cmd = tmpl.format(clazz, num,
-      field.members.foldLeft(""){ (a,b) => a + ", " + deserialiseField(b) } drop(2)
-      )
+      field.members.foldLeft("") { (a, b) => a + ", " + deserialiseField(b) } drop (2))
 
-    if(field.arrayInfo == None)
+    if (field.arrayInfo == None)
       cmd
     else {
-        val ai = field.arrayInfo.get
-        val pre = deserialiseFieldType(ai.prefixType)
-        if(ai.fixedLength)
-          "List(%s)".format( Iterator.fill(ai.length)(cmd).foldLeft(""){ (a,b) => a + ", " + b } drop(2))
-        else """{
+      val ai = field.arrayInfo.get
+      val pre = deserialiseFieldType(ai.prefixType)
+      if (ai.fixedLength)
+        "List(%s)".format(Iterator.fill(ai.length)(cmd).foldLeft("") { (a, b) => a + ", " + b } drop (2))
+      else """{
                     val tmp = %s
                     Iterator.range(0, tmp).toList.map(_ => %s)
                 }""".format(pre, cmd)
@@ -180,31 +181,31 @@ object CodeGenerator {
     if (field.arrayInfo == None)
       (deserialiseFieldType(field.fieldType)).format(field.info.name.get)
     else {
-        val ai = field.arrayInfo.get
-        val cmd = deserialiseFieldType(field.fieldType)
+      val ai = field.arrayInfo.get
+      val cmd = deserialiseFieldType(field.fieldType)
 
-        val pre = deserialiseFieldType(ai.prefixType)
+      val pre = deserialiseFieldType(ai.prefixType)
 
-        if(field.fieldType == Utf16) {
-            // XXX - this should be a StringTemplate!
-            // XXX - while currently not the case, Utf16 could also be of fixed length
-            """{
+      if (field.fieldType == Utf16) {
+        // XXX - this should be a StringTemplate!
+        // XXX - while currently not the case, Utf16 could also be of fixed length
+        """{
                     val tmp = %s
                     val arr = new Array[Byte](tmp)
                     buf.get(arr)
                     new String(arr, "UTF-16LE")
                 }
             """.format(pre)
-        } else {
-            
-            if(ai.fixedLength) 
-                "List(%s)".format(Iterator.fill(ai.length)(cmd).foldLeft(""){ (a,b) => a + ", " + b } drop(2))
-            else 
-                """{
+      } else {
+
+        if (ai.fixedLength)
+          "List(%s)".format(Iterator.fill(ai.length)(cmd).foldLeft("") { (a, b) => a + ", " + b } drop (2))
+        else
+          """{
                     val tmp = %s
                     Iterator.range(0, tmp).toList.map(_ => %s)
                 }""".format(pre, cmd)
-        }
+      }
     }
   }
 

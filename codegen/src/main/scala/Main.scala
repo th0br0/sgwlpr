@@ -2,46 +2,49 @@ package name.mkdir.codegen
 
 import scala.xml._
 import scala.collection._
-import java.io.{File,BufferedWriter,FileWriter}
+import java.io.{ File, BufferedWriter, FileWriter }
 import FieldTypes._
 // What I'd give for autoproxy... 
 object FieldTypes {
-sealed abstract class FieldType(val typeMapping: String, val size: Int)
-case object Int8 extends FieldType("Byte", 1)
-case object Int16 extends FieldType("Short", 2)
-case object Int32 extends FieldType("Int", 4)
-case object Int64 extends FieldType("Long", 8)
-case object Float extends FieldType("Float", 4)
-case object Vec2 extends FieldType("Vector2", 2 * 4)
-case object Vec3 extends FieldType("Vector3", 3 * 4)
-case object Vec4 extends FieldType("Vector4", 4 * 4)
-case object Uuid16 extends FieldType("?uuid16", 16) // XXX - What is the size of a uuid?
-case object Uuid28 extends FieldType("?uuid28", 28)
-case object AgentId extends FieldType("Int", 4) // XXX - this should be AgentId and use implicits
-case object Ascii extends FieldType("String", 2) // XXX - is this right?
-case object Utf16 extends FieldType("String", 2) // XXX - should be right?
-case object Packed extends FieldType("?packed", -65535) // XXX - FixMe.
-case object Nested extends FieldType("ERROR", -1)
+  sealed abstract class FieldType(val typeMapping: String, val size: Int)
+  case object Int8 extends FieldType("Byte", 1)
+  case object Int16 extends FieldType("Short", 2)
+  case object Int32 extends FieldType("Int", 4)
+  case object Int64 extends FieldType("Long", 8)
+  case object Float extends FieldType("Float", 4)
+  case object Vec2 extends FieldType("Vector2", 2 * 4)
+  case object Vec3 extends FieldType("Vector3", 3 * 4)
+  case object Vec4 extends FieldType("Vector4", 4 * 4)
+  case object Uuid16 extends FieldType("?uuid16", 16) // XXX - What is the size of a uuid?
+  case object Uuid28 extends FieldType("?uuid28", 28)
+  case object AgentId extends FieldType("Int", 4) // XXX - this should be AgentId and use implicits
+  case object Ascii extends FieldType("String", 2) // XXX - is this right?
+  case object Utf16 extends FieldType("String", 2) // XXX - should be right?
+  case object Packed extends FieldType("?packed", -65535) // XXX - FixMe.
+  case object Nested extends FieldType("ERROR", -1)
 }
 
-/** Internal representation of the array information associated with a packet
-  * @param length the length of the array
-  * @param fixedLength is the length constant
-  * @param prefixType the [[name.mkdir.gwlpr.codegen.FieldType]] of the prefix that needs to be serialised if the length is not constant
-  */
+/**
+ * Internal representation of the array information associated with a packet
+ * @param length the length of the array
+ * @param fixedLength is the length constant
+ * @param prefixType the [[name.mkdir.gwlpr.codegen.FieldType]] of the prefix that needs to be serialised if the length is not constant
+ */
 case class ArrayInfo(length: Int, fixedLength: Boolean, prefixType: FieldType)
 
-/** Base PacketField trait
-  */
+/**
+ * Base PacketField trait
+ */
 abstract sealed trait PacketField {
   def info: Info
   def arrayInfo: Option[ArrayInfo]
   def size: Int
 
-  /** Calculates the size of a packet taking available [[name.mkdir.gwlpr.codegen.ArrayInfo]] into account
-    *
-    * @param size the base packet size that is used for calculations
-    */
+  /**
+   * Calculates the size of a packet taking available [[name.mkdir.gwlpr.codegen.ArrayInfo]] into account
+   *
+   * @param size the base packet size that is used for calculations
+   */
   protected def realSize(size: Int) = {
     if (arrayInfo == None)
       size
@@ -57,36 +60,39 @@ abstract sealed trait PacketField {
   }
 }
 
-/** A normal packet field
-  * 
-  * @param fieldType the type for this field
-  * @param info the info metadata for this field
-  * @param arrayInfo the array metadata for this field
-  */
+/**
+ * A normal packet field
+ *
+ * @param fieldType the type for this field
+ * @param info the info metadata for this field
+ * @param arrayInfo the array metadata for this field
+ */
 case class Field(fieldType: FieldType, info: Info, arrayInfo: Option[ArrayInfo] = None) extends PacketField {
   def typeMapping = fieldType.typeMapping
   def size = realSize(fieldType.size)
 }
 
-/** A nested packet field
-  * 
-  * @param info the info metadata for this field
-  * @param members a list of the nested fields
-  * @param arrayInfo the array metadata for this field
-  */
+/**
+ * A nested packet field
+ *
+ * @param info the info metadata for this field
+ * @param members a list of the nested fields
+ * @param arrayInfo the array metadata for this field
+ */
 case class NestedField(info: Info, members: List[Field], arrayInfo: Option[ArrayInfo] = None) extends PacketField {
   private def memberSize = members.foldLeft(0) { case (a, b) => a + b.size }
   def size = realSize(memberSize)
 }
 
-/** Internal representation of a <Packet /> node
-  *
-  * @param header the packet header
-  * @param fields the list of fields contained in this packet
-  * @param info the metadata associated with this packet
-  */
+/**
+ * Internal representation of a <Packet /> node
+ *
+ * @param header the packet header
+ * @param fields the list of fields contained in this packet
+ * @param info the metadata associated with this packet
+ */
 case class Packet(header: Int, fields: List[PacketField], info: Info) {
-  /** Creates a default packet name if none is supplied by the metadata */ 
+  /** Creates a default packet name if none is supplied by the metadata */
   def name: String = info.name match {
     case None => "Packet%d".format(header)
     case Some(name) => name
@@ -97,12 +103,13 @@ case class Packet(header: Int, fields: List[PacketField], info: Info) {
 }
 
 // XXX - name should not be var
-/** Internal representation of packet and field metadata
-  * 
-  * @param name the name for the packet/field
-  * @param description the description for the packet/field
-  * @param author the author for the packet/field
-  */
+/**
+ * Internal representation of packet and field metadata
+ *
+ * @param name the name for the packet/field
+ * @param description the description for the packet/field
+ * @param author the author for the packet/field
+ */
 case class Info(var name: Option[String], description: Option[String], author: Option[String])
 
 object Main extends App {
@@ -132,35 +139,34 @@ object Main extends App {
     }
 
     // save packets as scala classes
-    packetMap.toList.foreach { case (d,p) => {
+    packetMap.toList.foreach {
+      case (d, p) => {
         import org.clapper.scalasti.StringTemplateGroup
 
-        val f = new File(target + "/" + d+".scala")
+        val f = new File(target + "/" + d + ".scala")
         f.delete
         f.createNewFile
-        
+
         val bw = new BufferedWriter(new FileWriter(f))
 
         val tpl = new StringTemplateGroup("", new File("templates")).template("base")
         tpl.setAttribute("package", packageName)
         tpl.setAttribute("dir", d)
-        tpl.setAttribute("content", p.foldLeft(""){ (a,b) => a + "\n" + CodeGenerator.generate(b) })
+        tpl.setAttribute("content", p.foldLeft("") { (a, b) => a + "\n" + CodeGenerator.generate(b) })
 
         val des = new StringTemplateGroup("", new File("templates")).template("deserialiser")
-        des.setAttribute("cases", p.map { packet => 
-            "case %d => %s(buf)\n".format(packet.header, packet.name)
+        des.setAttribute("cases", p.map { packet =>
+          "case %d => %s(buf)\n".format(packet.header, packet.name)
         })
-
 
         bw.write(tpl.toString)
         bw.write(des.toString)
         bw.flush
         bw.close
-      }}
-
+      }
+    }
 
   }
-
 
   /** This method implicitly converts a String to an Option[String] */
   implicit def string2Option(str: String): Option[String] = {
@@ -190,7 +196,7 @@ object Main extends App {
     case "nested" => Nested
   }
 
-  /** Parses the <Info /> node */ 
+  /** Parses the <Info /> node */
   def deserializeInfo(info: NodeSeq): Info = Info(
     (info \ "Name").text,
     (info \ "Description").text,
