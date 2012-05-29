@@ -146,7 +146,14 @@ object Main extends App {
         tpl.setAttribute("dir", d)
         tpl.setAttribute("content", p.foldLeft(""){ (a,b) => a + "\n" + CodeGenerator.generate(b) })
 
+        val des = new StringTemplateGroup("", new File("templates")).template("deserialiser")
+        des.setAttribute("cases", p.map { packet => 
+            "case %d => %s(buf)\n".format(packet.header, packet.name)
+        })
+
+
         bw.write(tpl.toString)
+        bw.write(des.toString)
         bw.flush
         bw.close
       }}

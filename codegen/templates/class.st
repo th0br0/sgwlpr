@@ -20,3 +20,4 @@ object $className$ {
     $deserialisedoc$
     $deserialise$
 }
+
