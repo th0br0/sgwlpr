@@ -41,11 +41,13 @@ trait ServerTrait[T <: Session] extends Actor with ActorLogging with ProvidesSes
 
             val pos = buf.position
             val packet = deserialise(buf)
-
             if(packet.isInstanceOf[PacketError])
             {
                 buf.position(pos)
                 session.buffer = Some(buf.slice)
+    
+                log.debug(packet.toString)
+
                 Nil
             } else
                 List(packet) ::: parse(buf)

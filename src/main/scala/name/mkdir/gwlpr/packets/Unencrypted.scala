@@ -19,7 +19,7 @@ sealed abstract trait SeedPacketTrait {
     }
 }
 
-class ClientSeedPacket(val seed: List[Byte]) extends Packet(16869) with SeedPacketTrait
+class ClientSeedPacket(val seed: List[Byte]) extends Packet(16896) with SeedPacketTrait
 class ServerSeedPacket(val seed: List[Byte]) extends Packet(5633) with SeedPacketTrait
 
 
@@ -53,7 +53,7 @@ object Deserialise extends Deserialiser {
         val header = buf.getShort
 
         header match {
-            case 16869 => new ClientSeedPacket(getBytes(64))
+            case 16896 => new ClientSeedPacket(getBytes(64))
             case 0x400 => 
                 new ClientVersionPacket(
                     buf.getShort,

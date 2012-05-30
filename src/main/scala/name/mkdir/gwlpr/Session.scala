@@ -20,15 +20,15 @@ trait ProvidesSession[T <: Session] {
     //    def deleteSession(uuid: UUID) : Boolean
 }
 
+object SessionState extends Enumeration {
+  type SessionState = Value
+  val New, Accepted = Value
+}
 abstract case class Session (
         socket: SocketHandle
     ){
 
-    object State extends Enumeration {
-        type State = Value
-        val New, Accepted = Value
-    }
-    import State._
+    import SessionState._
 
     def write(b: ByteString) = socket.write(b)
     def write(buf: ByteBuffer) = socket.write(ByteString(buf))
@@ -39,7 +39,7 @@ abstract case class Session (
 
     def uuid = socket.uuid
 
-    var state: State = New
+    var state: SessionState = New
 
     var buffer: Option[ByteBuffer] = None
     val securityKeys : List[Array[Byte]] = List(new Array[Byte](4), new Array[Byte](4))
