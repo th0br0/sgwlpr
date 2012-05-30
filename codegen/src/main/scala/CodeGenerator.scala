@@ -190,7 +190,7 @@ object CodeGenerator {
         // XXX - while currently not the case, Utf16 could also be of fixed length
         """{
                     val tmp = %s
-                    val arr = new Array[Byte](tmp)
+                    val arr = new Array[Byte](tmp * 2)
                     buf.get(arr)
                     new String(arr, "UTF-16LE")
                 }
