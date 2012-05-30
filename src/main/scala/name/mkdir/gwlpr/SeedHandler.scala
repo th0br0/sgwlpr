@@ -15,7 +15,8 @@ trait SeedHandler[T <: Session] extends PacketHandler[T] {
     abstract override def handlePacket(session: T)() : PartialFunction[Packet, Unit] = {
         case c: ClientSeedPacket => 
             log.info("Handling ClientSeed.")
-            
+
+            session.seed = c.seed
             // XXX - should we really just "accept" the session like this?
             session.state = SessionState.Accepted
 

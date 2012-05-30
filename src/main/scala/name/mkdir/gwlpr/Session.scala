@@ -40,8 +40,10 @@ abstract case class Session (
     def uuid = socket.uuid
 
     var state: SessionState = New
+    var seed: List[Byte] = Nil
 
     var buffer: Option[ByteBuffer] = None
+    
     val securityKeys : List[Array[Byte]] = List(new Array[Byte](4), new Array[Byte](4))
 
     {
