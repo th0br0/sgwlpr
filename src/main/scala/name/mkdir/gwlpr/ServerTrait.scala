@@ -8,8 +8,9 @@ import java.net.InetSocketAddress
 import scala.collection.mutable.HashMap
 
 import packets._
+import events._
 
-trait ServerTrait[T <: Session] extends Actor with ActorLogging with ProvidesSession[T]  with SeedHandler[T] {
+trait ServerTrait[T <: Session] extends Actor with ActorLogging with ProvidesSession[T]  with SeedHandler[T] with EventHandler {
     import IO._
     
     /** the port to listen on */
@@ -21,10 +22,7 @@ trait ServerTrait[T <: Session] extends Actor with ActorLogging with ProvidesSes
         IOManager(context.system) listen socketAddress
     }
 
-    def clientConnected(session: T)
-    def clientDisconnected(session: T)
-    def clientMessage(session: T, buffer: ByteBuffer)
-
+    def deserialiserForState(state: SessionState) : Deserialiser
     def deserialisePackets(session: T, buffer: ByteBuffer, deserialise: Deserialiser) : List[Packet] = {
        // XXX - use a ListBuffer here
        var ret : List[Packet] = Nil
@@ -66,17 +64,25 @@ trait ServerTrait[T <: Session] extends Actor with ActorLogging with ProvidesSes
         val session = initSession(socket)
         sessions += socket.uuid -> session
 
-        clientConnected(session)
+        self ! ClientConnected(session)
       }
 
-      case Read(socket, byteString) => clientMessage(sessions(socket.uuid), byteString.toByteBuffer.order(ByteOrder.LITTLE_ENDIAN))
+      case Read(socket, byteString) => {
+       val buffer = byteString.toByteBuffer.order(ByteOrder.LITTLE_ENDIAN)
+       val session = sessions(socket.uuid)
+
+       deserialisePackets(session, buffer, deserialiserForState(session.state).foreach(self ! ClientMessage(session, _))
+       packets.foreach(self ! ClientMessage(session, _))
+      }
       case Closed(socket, cause) => {
         log.info("Client(UUID: %s) lost. Reason: %s".format(socket.uuid, cause))
 
-        clientDisconnected(sessions(socket.uuid))
+        self ! ClientDisconnected(sessions(socket.uuid))
 
         sessions -= socket.uuid
       }
+
+      case e: Event => handleEvent(e)
     }
 
 }

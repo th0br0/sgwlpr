@@ -24,11 +24,11 @@ object SessionState extends Enumeration {
   type SessionState = Value
   val New, Accepted = Value
 }
-abstract case class Session (
-        socket: SocketHandle
-    ){
+trait Session {
 
     import SessionState._
+
+    def socket: SocketHandle
 
     def write(b: ByteString) = socket.write(b)
     def write(buf: ByteBuffer) = socket.write(ByteString(buf))

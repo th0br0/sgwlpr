@@ -2,7 +2,8 @@ package name.mkdir.gwlpr.packets
 
 import java.nio.ByteBuffer
 
-abstract case class Packet(header: Short) {
+// XXX - turn this into a trait with "def header: Short" ?
+abstract class Packet(val header: Short) {
     def toBytes : Array[Byte]
     def size: Int
 }
