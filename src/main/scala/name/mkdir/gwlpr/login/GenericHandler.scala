@@ -23,7 +23,12 @@ class GenericHandler extends Handler {
         session.write(new StreamTerminatorPacket(heartbeat = session.heartbeat))
     }
 
+    def handleExit(session: LoginSession, packet: ExitPacket) = {
+        // TODO: Turn ErrorCode into an Enumeration
+        log.debug("Reason for disconnection: " + packet.exitCode)
+    }
 
     addMessageHandler(manifest[ComputerInfoPacketEvent], handleComputerInfo)
     addMessageHandler(manifest[ResponseRequestPacketEvent], handleResponseRequest)
+    addMessageHandler(manifest[ExitPacketEvent], handleExit)
 }

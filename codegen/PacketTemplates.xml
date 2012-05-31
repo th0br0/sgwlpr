@@ -4681,7 +4681,7 @@
     </Packet>
     <Packet header="4">
 	<Info>
-	<Name>AccountLogin</Name>
+	<Name>Login</Name>
         <Description>Auto generated</Description>
         <Author>GWLPR Template Updater</Author>
       </Info>
@@ -4764,18 +4764,20 @@
       <Field occurs="20" prefixType="int16" static="false" type="utf16"/>
     </Packet>
     <Packet header="13">
-      <Info>
+	<Info>
+	    <Name>Logout</Name>
         <Description>Auto generated</Description>
         <Author>GWLPR Template Updater</Author>
       </Info>
       <Field type="int32"/>
     </Packet>
     <Packet header="14">
-      <Info>
+	<Info>
+	    <Name>Exit</Name>
         <Description>Auto generated</Description>
         <Author>GWLPR Template Updater</Author>
       </Info>
-      <Field type="int32"/>
+      <Field type="int32"><Info><Name>exitCode</Name></Info></Field>
     </Packet>
     <Packet header="15">
       <Info>
