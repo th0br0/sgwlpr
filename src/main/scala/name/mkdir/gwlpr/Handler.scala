@@ -9,6 +9,8 @@ trait Handler extends Actor with ActorLogging {
     import scala.collection.mutable.HashMap
     type EventListener = Event => Unit
 
+    // XXX - this does not support inheritance atm 
+
 
     private val handlers : HashMap[Class[_], EventListener] = HashMap.empty
 
@@ -34,7 +36,7 @@ trait Handler extends Actor with ActorLogging {
             fun(m.session.asInstanceOf[S], m.packet.asInstanceOf[P])
         }
 
-        log.debug("handling %s now!".format(m.erasure))
+        log.debug("handling %s".format(m.erasure))
         addHandler(m.erasure, handler())
         subscribeTo(m.erasure)
     }

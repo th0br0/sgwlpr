@@ -23,7 +23,7 @@ trait ServerTrait[T <: Session] extends Actor with ActorLogging with ProvidesSes
     override def preStart {
         import akka.actor.Props
         context.actorOf(Props(new SeedHandler), name = "seedHandler")
-        
+
         IOManager(context.system) listen socketAddress
 
 
@@ -78,7 +78,9 @@ trait ServerTrait[T <: Session] extends Actor with ActorLogging with ProvidesSes
        val buffer = byteString.toByteBuffer.order(ByteOrder.LITTLE_ENDIAN)
        val session = sessions(socket.uuid)
 
-       deserialisePackets(session, buffer, deserialiserForState(session.state)).foreach{ p => context.system.eventStream.publish(p.toEvent(session)) }
+       val packets = deserialisePackets(session, buffer, deserialiserForState(session.state))
+       packets.foreach{ p => log.debug("received: " + p) }
+       packets.foreach{ p => context.system.eventStream.publish(p.toEvent(session)) }
       }
       case Closed(socket, cause) => {
         log.info("Client(UUID: %s) lost. Reason: %s".format(socket.uuid, cause))
