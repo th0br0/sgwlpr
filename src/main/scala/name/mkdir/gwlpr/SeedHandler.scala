@@ -5,7 +5,6 @@ import java.util.Random
 import packets._
 import unenc._
 import events._
-import login.LoginSession
 
 class SeedHandler extends Handler {
     private val seed: List[Byte] = {
@@ -14,7 +13,7 @@ class SeedHandler extends Handler {
         arr.toList
     }
 
-    def handleClientSeed(session: LoginSession, packet: ClientSeedPacket) : Unit = {
+    def handleClientSeed(session: Session, packet: ClientSeedPacket) : Unit = {
         log.debug("Session: " + session.hashCode)
         session.seed = seed
         session.state = SessionState.Accepted
