@@ -25,6 +25,6 @@ class LoginServer(val port: Int) extends ServerTrait[LoginSession] {
         super.preStart
 
         // XXX - is there some way to define the name inside the actor as with akka 1.* ?
-        context.actorOf(Props(new ComputerInfoHandler), name="computerInfoHandler")
+        context.actorOf(Props(new GenericHandler), name="genericHandler")
     }
 }
