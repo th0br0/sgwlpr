@@ -23,5 +23,5 @@ class SeedHandler extends Handler {
         log.debug("Handled ClientSeedPacket; " + seed)
     }
 
-    addMessageHandler(manifest[ClientSeedEvent], handleClientSeed)
+    addMessageHandler(manifest[ClientSeedPacketEvent], handleClientSeed)
 }

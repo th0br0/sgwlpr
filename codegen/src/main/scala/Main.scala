@@ -94,8 +94,8 @@ case class NestedField(info: Info, members: List[Field], arrayInfo: Option[Array
 case class Packet(header: Int, fields: List[PacketField], info: Info) {
   /** Creates a default packet name if none is supplied by the metadata */
   def name: String = info.name match {
-    case None => "Packet%d".format(header)
-    case Some(name) => name
+        case None => "Packet%d".format(header)
+        case Some(name) => name + "Packet"
   }
 
   /** Adds up the sizes of the internal fields */

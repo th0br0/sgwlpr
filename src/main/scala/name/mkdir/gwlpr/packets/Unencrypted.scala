@@ -22,9 +22,9 @@ sealed abstract trait SeedPacketTrait {
     }
 }
 
-case class ClientSeedEvent(session: Session, packet: ClientSeedPacket) extends ClientMessageEvent
+case class ClientSeedPacketEvent(session: Session, packet: ClientSeedPacket) extends ClientMessageEvent
 class ClientSeedPacket(val seed: List[Byte]) extends Packet(16896) with SeedPacketTrait {
-    def toEvent(session: Session) = ClientSeedEvent(session, this)
+    def toEvent(session: Session) = ClientSeedPacketEvent(session, this)
 }
 class ServerSeedPacket(val seed: List[Byte]) extends Packet(5633) with SeedPacketTrait {
     def toEvent(session: Session) = null
@@ -36,14 +36,14 @@ sealed trait InboundPacket {
     def toBytes: Array[Byte] = null // this should never get called anyway
 }
 
-case class ClientVersionEvent(session: Session, packet: ClientVersionPacket) extends ClientMessageEvent
+case class ClientVersionPacketEvent(session: Session, packet: ClientVersionPacket) extends ClientMessageEvent
 class ClientVersionPacket(val unknown0: Short, val clientVersion: Int, val unknown1: Int, val unknown2: Int) extends Packet(0x400) with InboundPacket {
     def size = 2 + 4 + 4 + 4
-    def toEvent(session: Session) = ClientVersionEvent(session, this)
+    def toEvent(session: Session) = ClientVersionPacketEvent(session, this)
 }
 
 
-case class ClientVerificationEvent(session: Session, packet: ClientVerificationPacket) extends ClientMessageEvent
+case class ClientVerificationPacketEvent(session: Session, packet: ClientVerificationPacket) extends ClientMessageEvent
 class ClientVerificationPacket(
   val unknown0: Short,
   val unknown1: Int,
@@ -57,7 +57,7 @@ class ClientVerificationPacket(
   val unknown5: Int) extends Packet(0x500) with InboundPacket {
     
   def size = 2 + 4 + 4 + 4 + 4 + 4 + 16 + 16 + 4 + 4
-  def toEvent(session: Session) = ClientVerificationEvent(session, this)
+  def toEvent(session: Session) = ClientVerificationPacketEvent(session, this)
 
 }
 

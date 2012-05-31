@@ -1,12 +1,8 @@
 package name.mkdir.gwlpr.login
 
 import akka.actor.IO.SocketHandle
-
 import com.eaio.uuid.UUID
-
 import scala.collection.mutable.HashMap
-
-import java.nio.ByteBuffer
 
 import name.mkdir.gwlpr._
 import packets._
@@ -24,6 +20,11 @@ class LoginServer(val port: Int) extends ServerTrait[LoginSession] {
     }
 
     override def preStart = {
+        import akka.actor.Props
+
         super.preStart
+
+        // XXX - is there some way to define the name inside the actor as with akka 1.* ?
+        context.actorOf(Props(new ComputerInfoHandler), name="computerInfoHandler")
     }
 }

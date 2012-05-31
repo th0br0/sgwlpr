@@ -3,19 +3,22 @@
 
   <Direction abbr="LStoC" name="LoginServer to Client">
     <Packet header="0">
-      <Info>
+	<Info>
         <Description>Auto generated</Description>
         <Author>GWLPR Template Updater</Author>
       </Info>
       <Field type="int32"/>
     </Packet>
     <Packet header="1">
-      <Info>
+	<Info>
+	<Name>ComputerInfoReply</Name>
         <Description>Auto generated</Description>
         <Author>GWLPR Template Updater</Author>
       </Info>
       <Field type="int32"/>
-      <Field type="int32"/>
+      <Field type="int32">
+	<Info><Name>heartbeat</Name></Info>
+      </Field>
       <Field type="int32"/>
       <Field type="int32"/>
     </Packet>
@@ -28,12 +31,17 @@
       <Field type="int32"/>
     </Packet>
     <Packet header="3">
-      <Info>
+	<Info>
+	<Name>StreamTerminator</Name>
         <Description>Auto generated</Description>
         <Author>GWLPR Template Updater</Author>
       </Info>
-      <Field type="int32"/>
-      <Field type="int32"/>
+      <Field type="int32">
+	<Info><Name>heartbeat</Name></Info>
+      </Field>
+      <Field type="int32">
+	<Info><Name>errorCode</Name></Info>
+      </Field>
     </Packet>
     <Packet header="4">
       <Info>
@@ -375,11 +383,12 @@
       </Info>
     </Packet>
     <Packet header="38">
-      <Info>
+	<Info>
+	<Name>ResponseRequestReply</Name>
         <Description>Auto generated</Description>
         <Author>GWLPR Template Updater</Author>
       </Info>
-      <Field type="int32"/>
+      <Field type="int32"><Info><Name>heartbeat</Name></Info></Field>
       <Field type="int32"/>
     </Packet>
   </Direction>
@@ -4627,19 +4636,29 @@
 
   <Direction abbr="CtoLS" name="Client to LoginServer">
     <Packet header="0">
-      <Info>
+	<Info>
+	    <Name>KeepAlive</Name>
         <Description>Auto generated</Description>
         <Author>GWLPR Template Updater</Author>
       </Info>
       <Field type="int32"/>
     </Packet>
     <Packet header="1">
-      <Info>
+	<Info>
+	<Name>ComputerInfo</Name>
         <Description>Auto generated</Description>
         <Author>GWLPR Template Updater</Author>
       </Info>
-      <Field occurs="32" prefixType="int16" static="false" type="utf16"/>
-      <Field occurs="32" prefixType="int16" static="false" type="utf16"/>
+      <Field occurs="32" prefixType="int16" static="false" type="utf16">
+	<Info>
+	    <Name>username</Name>
+	</Info>
+      </Field>
+      <Field occurs="32" prefixType="int16" static="false" type="utf16">
+	  <Info>
+	      <Name>hostname</Name>
+	  </Info>
+      </Field>
     </Packet>
     <Packet header="2">
       <Info>
@@ -5119,11 +5138,12 @@
       <Field type="int32"/>
     </Packet>
     <Packet header="53">
-      <Info>
+	<Info>
+	<Name>ResponseRequest</Name>
         <Description>Auto generated</Description>
         <Author>GWLPR Template Updater</Author>
       </Info>
-      <Field type="int32"/>
+      <Field type="int32"><Info><Name>heartbeat</Name></Info></Field>
     </Packet>
     <Packet header="54">
       <Info>
