@@ -1,1 +1,1 @@
-val $name$: $type$
+val $name$: $type$ $value$

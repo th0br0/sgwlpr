@@ -67,6 +67,11 @@ object CodeGenerator {
           else
             "List[" + field.typeMapping + "]"
         })
+
+        if(info.value != None) {
+            attributeTemplate.setAttribute("value", " = " + info.value.get)
+        }
+      
         attributeTemplate.toString
       case NestedField(info, _, arrayInfo) =>
         val attributeTemplate = stdir.template("attribute")

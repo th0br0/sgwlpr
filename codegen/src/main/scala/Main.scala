@@ -110,7 +110,7 @@ case class Packet(header: Int, fields: List[PacketField], info: Info) {
  * @param description the description for the packet/field
  * @param author the author for the packet/field
  */
-case class Info(var name: Option[String], description: Option[String], author: Option[String])
+case class Info(var name: Option[String], description: Option[String], author: Option[String], value: Option[String])
 
 object Main extends App {
 
@@ -135,7 +135,7 @@ object Main extends App {
       }
       val packets = (direction \ "Packet").toList
 
-      packetMap += (dir -> packets.map(deserializePacket).toList)
+      packetMap += (dir -> packets.map(deserialisePacket).toList)
     }
 
     // save packets as scala classes
@@ -197,24 +197,25 @@ object Main extends App {
   }
 
   /** Parses the <Info /> node */
-  def deserializeInfo(info: NodeSeq): Info = Info(
+  def deserialiseInfo(info: NodeSeq): Info = Info(
     (info \ "Name").text,
     (info \ "Description").text,
-    (info \ "Author").text)
+    (info \ "Author").text,
+    (info \ "Value").text)
 
   /* Parses the <Packet /> node */
-  def deserializePacket(packet: NodeSeq): Packet = {
+  def deserialisePacket(packet: NodeSeq): Packet = {
     val header = (packet \ "@header").text.toInt
-    val info = deserializeInfo(packet \ "Info")
+    val info = deserialiseInfo(packet \ "Info")
 
-    val fields = deserializeFields(packet \ "Field")
+    val fields = deserialiseFields(packet \ "Field")
     Packet(header, fields, info)
   }
 
   /** Parses <Field /> nodes */
-  def deserializeFields(fields: NodeSeq): List[PacketField] = {
+  def deserialiseFields(fields: NodeSeq): List[PacketField] = {
     var unknownCount = 0
-    fields.map(deserializeField).toList.map { field =>
+    fields.map(deserialiseField).toList.map { field =>
       if (field.info.name == None) {
         field.info.name = Some("unknown" + unknownCount)
         unknownCount += 1
@@ -225,10 +226,10 @@ object Main extends App {
   }
 
   /** Parses a <Field /> node */
-  def deserializeField(field: NodeSeq): PacketField = {
+  def deserialiseField(field: NodeSeq): PacketField = {
     val fieldType: FieldType = (field \ "@type").text
 
-    val info = deserializeInfo(field \ "Info")
+    val info = deserialiseInfo(field \ "Info")
 
     // Create the ArrayInfo for the field
     val array: Option[ArrayInfo] = {
@@ -249,7 +250,7 @@ object Main extends App {
 
     // Special treatment for nested nodes
     if (fieldType == Nested) {
-      val fields = deserializeFields(field \ "Field")
+      val fields = deserialiseFields(field \ "Field")
       NestedField(info, fields.asInstanceOf[List[Field]], array) // XXX - Fix this zZz hack
     } else
       Field(fieldType, info, array)

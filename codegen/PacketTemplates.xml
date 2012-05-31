@@ -15,12 +15,12 @@
         <Description>Auto generated</Description>
         <Author>GWLPR Template Updater</Author>
       </Info>
-      <Field type="int32"/>
+      <Field type="int32"><Info><Value>0x71953D3D</Value></Info></Field>
       <Field type="int32">
 	<Info><Name>heartbeat</Name></Info>
       </Field>
-      <Field type="int32"/>
-      <Field type="int32"/>
+      <Field type="int32"><Info><Value>0</Value></Info></Field>
+      <Field type="int32"><Info><Value>1</Value></Info></Field>
     </Packet>
     <Packet header="2">
       <Info>
@@ -40,7 +40,7 @@
 	<Info><Name>heartbeat</Name></Info>
       </Field>
       <Field type="int32">
-	<Info><Name>errorCode</Name></Info>
+	  <Info><Name>errorCode</Name><Value>0</Value></Info>
       </Field>
     </Packet>
     <Packet header="4">
@@ -389,7 +389,7 @@
         <Author>GWLPR Template Updater</Author>
       </Info>
       <Field type="int32"><Info><Name>heartbeat</Name></Info></Field>
-      <Field type="int32"/>
+      <Field type="int32"><Info><Value>0</Value></Info></Field>
     </Packet>
   </Direction>
 

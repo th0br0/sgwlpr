@@ -13,12 +13,7 @@ class ComputerInfoHandler extends Handler {
     def handlePacket(session: LoginSession, packet: ComputerInfoPacket) = {
         log.debug("Received ComputerInfo(%s, %s)".format(packet.username, packet.hostname))
         
-        session.write(new ComputerInfoReplyPacket(
-            0x71953D3D, // XXX - weird static data
-            session.heartbeat,
-            0,
-            1
-        ))
+        session.write(new ComputerInfoReplyPacket(heartbeat = session.heartbeat))
     }
 
     addMessageHandler(manifest[ComputerInfoPacketEvent], handlePacket)
