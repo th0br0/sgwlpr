@@ -4,25 +4,29 @@ import java.util.Random
 
 import packets._
 import unenc._
+import events._
 
-trait SeedHandler[T <: Session] extends PacketHandler[T] {
+
+class SeedHandler extends Handler {
     private val seed: List[Byte] = {
         val arr = new Array[Byte](64)
         (new Random).nextBytes(arr)
         arr.toList
     }
 
-    abstract override def handlePacket(session: T)() : PartialFunction[Packet, Unit] = {
-        case c: ClientSeedPacket => 
-            log.info("Handling ClientSeed.")
+    def handleClientSeed(session: Session, seed: List[Byte]) : Unit = {
+        log.debug("Session: " + session.hashCode)
+        session.seed = seed
+        session.state = SessionState.Accepted
+        
+        session.write(new ServerSeedPacket(seed))
 
-            session.seed = c.seed
-            // XXX - should we really just "accept" the session like this?
-            session.state = SessionState.Accepted
-
-            session.write(new ServerSeedPacket(seed))
-        case other => super.handlePacket(session).apply(other)
+        log.debug("Handled ClientSeedPacket; " + seed)
     }
 
+    def receive = {
+        case c: ClientSeedEvent => handleClientSeed(c.session, c.packet.seed)
+    }
 
+    subscribeTo(classOf[ClientSeedEvent])
 }

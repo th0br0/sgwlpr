@@ -12,19 +12,18 @@ import name.mkdir.gwlpr._
 import packets._
 import events._
 
-class LoginServer(val port: Int) extends ServerTrait[LoginSession] with DummyHandler {
+import SessionState.SessionState
+
+class LoginServer(val port: Int) extends ServerTrait[LoginSession] {
     def initSession(socket: SocketHandle) = LoginSession(socket)
     val sessions : HashMap[UUID, LoginSession] = HashMap.empty
 
     def deserialiserForState(state: SessionState) : Deserialiser = state match {
         case SessionState.New => unenc.Deserialise
-        case SessionState.Accepted => unenc.Deserialise
+        case SessionState.Accepted => c2l.Deserialise
     }
 
-    def clientConnected(session: LoginSession) = {}
-    def clientDisconnected(session: LoginSession) = {}
-
-    def clientMessage(session: LoginSession, buffer: ByteBuffer) = {
+    override def preStart = {
+        super.preStart
     }
-
 }

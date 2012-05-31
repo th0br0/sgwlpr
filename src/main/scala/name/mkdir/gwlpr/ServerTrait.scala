@@ -10,7 +10,9 @@ import scala.collection.mutable.HashMap
 import packets._
 import events._
 
-trait ServerTrait[T <: Session] extends Actor with ActorLogging with ProvidesSession[T]  with SeedHandler[T] with EventHandler {
+import SessionState.SessionState
+
+trait ServerTrait[T <: Session] extends Actor with ActorLogging with ProvidesSession[T] {
     import IO._
     
     /** the port to listen on */
@@ -19,7 +21,12 @@ trait ServerTrait[T <: Session] extends Actor with ActorLogging with ProvidesSes
     lazy val socketAddress = new InetSocketAddress(port)
 
     override def preStart {
+        import akka.actor.Props
+        context.actorOf(Props(new SeedHandler), name = "seedHandler")
+        
         IOManager(context.system) listen socketAddress
+
+
     }
 
     def deserialiserForState(state: SessionState) : Deserialiser
@@ -71,8 +78,9 @@ trait ServerTrait[T <: Session] extends Actor with ActorLogging with ProvidesSes
        val buffer = byteString.toByteBuffer.order(ByteOrder.LITTLE_ENDIAN)
        val session = sessions(socket.uuid)
 
-       deserialisePackets(session, buffer, deserialiserForState(session.state).foreach(self ! ClientMessage(session, _))
-       packets.foreach(self ! ClientMessage(session, _))
+        log.debug("session: " + session.hashCode + " ::: " + session.state)
+
+       deserialisePackets(session, buffer, deserialiserForState(session.state)).foreach{ p => context.system.eventStream.publish(p.toEvent(session)) }
       }
       case Closed(socket, cause) => {
         log.info("Client(UUID: %s) lost. Reason: %s".format(socket.uuid, cause))
@@ -81,8 +89,6 @@ trait ServerTrait[T <: Session] extends Actor with ActorLogging with ProvidesSes
 
         sessions -= socket.uuid
       }
-
-      case e: Event => handleEvent(e)
     }
 
 }

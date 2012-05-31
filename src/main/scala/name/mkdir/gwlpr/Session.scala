@@ -30,6 +30,8 @@ trait Session {
 
     def socket: SocketHandle
 
+    def setState(s: SessionState) = this.state = s
+
     def write(b: ByteString) = socket.write(b)
     def write(buf: ByteBuffer) = socket.write(ByteString(buf))
     def write(b: Array[Byte]) = socket.write(ByteString(b))

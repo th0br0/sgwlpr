@@ -4,19 +4,23 @@ import name.mkdir.gwlpr.Session
 import name.mkdir.gwlpr.packets.Packet
 import name.mkdir.gwlpr.Logging
 
+import akka.actor.Actor
+import akka.actor.ActorLogging
+
 trait Event
-
-trait EventHandler extends Logging {
-    def handleEvent : PartialFunction[Event, Unit] = {
-        case e: Event => log.debug("Event %s not handled.".format(e))
-    }
+trait ClientEvent extends Event {
+    def session: Session
 }
 
-trait ClientEvent[T <: Session] extends Event {
-    def session: T
+case class ClientConnected(session: Session) extends ClientEvent
+case class ClientDisconnected(session: Session) extends ClientEvent
+
+trait ClientMessageEvent extends ClientEvent {
+    def packet : Packet
+    def session : Session
 }
 
-case class ClientConnected[T <: Session](session: T) extends ClientEvent[T]
-case class ClientDisconnected[T <: Session](session: T) extends ClientEvent[T]
-case class ClientMessage[T <: Session](session: T, packet: Packet) extends ClientEvent[T]
-
+//-----------------
+trait Handler extends Actor with ActorLogging {
+    def subscribeTo(c: Class[_]) = context.system.eventStream.subscribe(self, c)
+}
