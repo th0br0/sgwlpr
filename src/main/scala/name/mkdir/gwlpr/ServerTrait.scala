@@ -78,8 +78,6 @@ trait ServerTrait[T <: Session] extends Actor with ActorLogging with ProvidesSes
        val buffer = byteString.toByteBuffer.order(ByteOrder.LITTLE_ENDIAN)
        val session = sessions(socket.uuid)
 
-        log.debug("session: " + session.hashCode + " ::: " + session.state)
-
        deserialisePackets(session, buffer, deserialiserForState(session.state)).foreach{ p => context.system.eventStream.publish(p.toEvent(session)) }
       }
       case Closed(socket, cause) => {
