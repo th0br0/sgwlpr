@@ -8,11 +8,12 @@ import java.nio.{ByteBuffer, ByteOrder}
 
 
 sealed abstract trait SeedPacketTrait {
+    def seedSize : Int
     def seed: List[Byte]
     def header: Short
-    def size: Int = 2 + 64
+    def size: Int = 2 + seedSize
 
-    assert(seed.length == 64)
+    assert(seed.length <= seedSize)
 
     def toBytes: Array[Byte] = {
         val buf = ByteBuffer.allocate(size).order(ByteOrder.LITTLE_ENDIAN)
@@ -25,9 +26,11 @@ sealed abstract trait SeedPacketTrait {
 case class ClientSeedPacketEvent(session: Session, packet: ClientSeedPacket) extends ClientMessageEvent
 class ClientSeedPacket(val seed: List[Byte]) extends Packet(16896) with SeedPacketTrait {
     def toEvent(session: Session) = ClientSeedPacketEvent(session, this)
+    def seedSize = 64
 }
 class ServerSeedPacket(val seed: List[Byte]) extends Packet(5633) with SeedPacketTrait {
     def toEvent(session: Session) = null
+    def seedSize = 20
 }
 
 

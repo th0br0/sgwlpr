@@ -353,7 +353,8 @@
       <Field occurs="12" prefixType="int16" static="true" type="int8"/>
     </Packet>
     <Packet header="35">
-      <Info>
+	<Info>
+
         <Description>Auto generated</Description>
         <Author>GWLPR Template Updater</Author>
       </Info>
@@ -4679,16 +4680,17 @@
       <Field occurs="26" prefixType="int16" static="false" type="utf16"/>
     </Packet>
     <Packet header="4">
-      <Info>
+	<Info>
+	<Name>AccountLogin</Name>
         <Description>Auto generated</Description>
         <Author>GWLPR Template Updater</Author>
       </Info>
+      <Field type="int32"><Info><Name>heartbeat</Name></Info></Field>
       <Field type="int32"/>
-      <Field type="int32"/>
-      <Field occurs="20" prefixType="int16" static="true" type="int8"/>
-      <Field occurs="64" prefixType="int16" static="false" type="utf16"/>
+      <Field occurs="20" prefixType="int16" static="true" type="int8"><Info><Name>password</Name></Info></Field>
+      <Field occurs="64" prefixType="int16" static="false" type="utf16"><Info><Name>email</Name></Info></Field>
       <Field occurs="20" prefixType="int16" static="false" type="utf16"/>
-      <Field occurs="20" prefixType="int16" static="false" type="utf16"/>
+      <Field occurs="20" prefixType="int16" static="false" type="utf16"><Info><Name>charName</Name></Info></Field>
     </Packet>
     <Packet header="5">
       <Info>
@@ -4963,11 +4965,12 @@
       <Field type="int32"/>
     </Packet>
     <Packet header="35">
-      <Info>
+	<Info>
+	<Name>ClientID</Name>
         <Description>Auto generated</Description>
         <Author>GWLPR Template Updater</Author>
       </Info>
-      <Field type="int32"/>
+      <Field type="int32"><Info><Name>clientId</Name></Info></Field>
     </Packet>
     <Packet header="36">
       <Info>
