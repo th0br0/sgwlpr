@@ -5,7 +5,7 @@ import java.util.Random
 import packets._
 import unenc._
 import events._
-
+import login.LoginSession
 
 class SeedHandler extends Handler {
     private val seed: List[Byte] = {
@@ -14,7 +14,7 @@ class SeedHandler extends Handler {
         arr.toList
     }
 
-    def handleClientSeed(session: Session, seed: List[Byte]) : Unit = {
+    def handleClientSeed(session: LoginSession, packet: ClientSeedPacket) : Unit = {
         log.debug("Session: " + session.hashCode)
         session.seed = seed
         session.state = SessionState.Accepted
@@ -24,9 +24,5 @@ class SeedHandler extends Handler {
         log.debug("Handled ClientSeedPacket; " + seed)
     }
 
-    def receive = {
-        case c: ClientSeedEvent => handleClientSeed(c.session, c.packet.seed)
-    }
-
-    subscribeTo(classOf[ClientSeedEvent])
+    addMessageHandler(manifest[ClientSeedEvent], handleClientSeed)
 }

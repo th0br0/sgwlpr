@@ -2,10 +2,7 @@ package name.mkdir.gwlpr.events
 
 import name.mkdir.gwlpr.Session
 import name.mkdir.gwlpr.packets.Packet
-import name.mkdir.gwlpr.Logging
 
-import akka.actor.Actor
-import akka.actor.ActorLogging
 
 trait Event
 trait ClientEvent extends Event {
@@ -20,7 +17,3 @@ trait ClientMessageEvent extends ClientEvent {
     def session : Session
 }
 
-//-----------------
-trait Handler extends Actor with ActorLogging {
-    def subscribeTo(c: Class[_]) = context.system.eventStream.subscribe(self, c)
-}
