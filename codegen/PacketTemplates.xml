@@ -174,20 +174,21 @@
       <Field occurs="256" prefixType="int16" static="false" type="utf16"/>
     </Packet>
     <Packet header="17">
-      <Info>
+	<Info>
+	<Name>AccountInfo</Name>
         <Description>Auto generated</Description>
         <Author>GWLPR Template Updater</Author>
       </Info>
-      <Field type="int32"/>
-      <Field type="int32"/>
-      <Field type="int32"/>
+      <Field type="int32"><Info><Name>heartbeat</Name></Info></Field>
+      <Field type="int32"><Info><Name>territory</Name></Info></Field>
+      <Field type="int32"><Info><Name>territoryChangesLeft</Name></Info></Field>
       <Field occurs="8" prefixType="int16" static="true" type="int8"/>
       <Field occurs="8" prefixType="int16" static="true" type="int8"/>
       <Field occurs="16" prefixType="int16" static="true" type="int8"/>
       <Field occurs="16" prefixType="int16" static="true" type="int8"/>
       <Field type="int32"/>
       <Field occurs="200" prefixType="int16" static="false" type="int8"/>
-      <Field type="int8"/>
+      <Field type="int8"><Info><Name>eulaAccepted</Name></Info></Field>
       <Field type="int32"/>
     </Packet>
     <Packet header="18">
@@ -210,12 +211,13 @@
       <Field type="int32"/>
     </Packet>
     <Packet header="20">
-      <Info>
+	<Info>
+	    <Name>FriendsListEnd</Name>
         <Description>Auto generated</Description>
         <Author>GWLPR Template Updater</Author>
       </Info>
-      <Field type="int32"/>
-      <Field type="int32"/>
+      <Field type="int32"><Info><Name>heartbeat</Name></Info></Field>
+      <Field type="int32"><Info><Value>1</Value></Info></Field>
     </Packet>
     <Packet header="21">
       <Info>
@@ -230,12 +232,13 @@
       <Field type="int32"/>
     </Packet>
     <Packet header="22">
-      <Info>
+	<Info>
+	<Name>GuiSettings</Name>
         <Description>Auto generated</Description>
         <Author>GWLPR Template Updater</Author>
       </Info>
-      <Field type="int32"/>
-      <Field occurs="1024" prefixType="int16" static="false" type="int8"/>
+      <Field type="int32"><Info><Name>heartbeat</Name></Info></Field>
+      <Field occurs="1024" prefixType="int16" static="false" type="int8" />
     </Packet>
     <Packet header="23">
       <Info>
@@ -4819,6 +4822,7 @@
         <Description>Auto generated</Description>
         <Author>GWLPR Template Updater</Author>
       </Info>
+      <Field type="int32"/>
       <Field type="int32"/>
     </Packet>
     <Packet header="20">

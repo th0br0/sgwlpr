@@ -17,7 +17,7 @@ object CodeGenerator {
       "serialise" -> generateSerialisationFunction(packet),
       "deserialise" -> generateDeserialisationFunction(packet),
       "className" -> packet.name,
-      "size" -> packet.size,
+      "size" -> generateSize(packet.fields),
       "header" -> packet.header))
     classTemplate.toString
   }
@@ -33,6 +33,49 @@ object CodeGenerator {
         template.setAttribute("attributes", generateAttributes(field.members, packet.name))
         template.toString
     }
+  }
+
+  def generateSize(fields: List[PacketField]) : String = {
+    def gen(prefix: String, fields: List[PacketField]) : String = {
+        val noarray = fields.filter(_.arrayInfo == None)
+        val staticsize = {
+            if(noarray.length > 0) noarray.map(_.size).reduceLeft(_ + _)
+              else 0 }
+
+        val arrays = fields.diff(noarray)
+        val staticarrays = arrays.filter{f => f.arrayInfo.get.fixedLength && !(f.isInstanceOf[NestedField])}
+        val staticsize2 = {
+          if(staticarrays.length > 0) staticarrays.map(_.size).reduceLeft(_ + _)
+        else 0 }
+
+        val dynarrays = arrays.diff(staticarrays)
+        val normalarrays = dynarrays.filterNot(_.isInstanceOf[NestedField])
+        val normalstr = {
+            if(normalarrays.length > 0) normalarrays.map { f => 
+            val ai = f.arrayInfo.get
+            "%d + (%s.length * %d)".format(ai.prefixType.size, ({if(!prefix.isEmpty) prefix + "." else ""}+ f.info.name.get), f.asInstanceOf[Field].fieldType.size)
+        } reduceLeft(_ + " + " + _)
+         else "" }
+
+
+        if(!normalstr.isEmpty)
+             "2 + %d + %d + %s".format(staticsize, staticsize2, normalstr)
+        else
+             "2 + %d + %d".format(staticsize, staticsize2)
+            
+    }
+    val nested = fields.filter(_.isInstanceOf[NestedField])
+    val normal = fields.diff(nested)
+
+    gen("", normal) + {
+        if(nested.length > 0) " + " + nested.map{n => 
+            val single = gen(n.info.name.get, n.asInstanceOf[NestedField].members)
+            if(n.arrayInfo == None)
+                single
+            else 
+              n.info.name.get + ".map{ field => %s }.reduceLeft(_+_)".format(single.replace(n.info.name.get, "field"))
+            }.reduceLeft(_ + " + " + _)
+        else "" }
   }
 
   def generateAssertions(fields: List[PacketField]): List[String] = {
@@ -100,7 +143,7 @@ object CodeGenerator {
 
   def serialiseNested(field: NestedField): String = {
     if (field.arrayInfo == None)
-      field.members.foldRight("") { (b, a) => serialiseFieldType(b.fieldType).format(b.info.name) + a }
+      field.members.foldRight("") { (b, a) => serialiseFieldType(b.fieldType).format(b.info.name.get) + a }
     else {
       val inner = field.members.foldRight("") { (b, a) => serialiseFieldType(b.fieldType).format("i." + b.info.name.get) + a }
 
