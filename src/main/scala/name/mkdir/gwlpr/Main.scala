@@ -8,4 +8,8 @@ object Main extends App {
     val system = ActorSystem()
 
     system.actorOf(Props(new LoginServer(port)), name="login")
+
+    while(readLine != "exit") {}
+    system.shutdown
+
 }
