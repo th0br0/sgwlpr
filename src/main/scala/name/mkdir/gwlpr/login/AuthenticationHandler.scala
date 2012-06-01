@@ -20,7 +20,7 @@ class AuthenticationHandler extends Handler {
 
     def performLogin(session: LoginSession, email: String, password: String, charName: String) : Boolean = {
         log.info("TODO: Implement performLogin")
-        return false
+        return true
     }
 
     def handleLogin(session: LoginSession, packet: LoginPacket) : Unit = {
@@ -30,11 +30,26 @@ class AuthenticationHandler extends Handler {
         log.debug("Character name: " + packet.charName)
 
         if(!performLogin(session, packet.email, password(packet), packet.charName)) {
+            // XXX - publish a clientdisconnected event
             session.write(new StreamTerminatorPacket(session.heartbeat, ErrorCode.UnknownUser))
             return
         }
 
-        // Login successful
+        // Login successful -- put this in a separate method?
+        session.write(List(
+          new GuiSettingsPacket(session.heartbeat, List[Byte](0)),
+          new FriendsListEndPacket(session.heartbeat, 1),
+          // XXX - analyse the values here...
+          new AccountInfoPacket(
+            session.heartbeat, 2, 4, 
+            List(0x3F, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00).map(_.toByte),
+            List(0x80, 0x3F, 0x02, 0x00, 0x03, 0x00, 0x08, 0x00).map(_.toByte),
+            List(0x37, 0x4B, 0x09, 0xBB, 0xC2, 0xF6, 0x74, 0x43, 0xAA, 0xAB, 0x35, 0x4D, 0xEE, 0xB7, 0xAF, 0x08).map(_.toByte),
+            List(0x55, 0xB6, 0x77, 0x59, 0x0C, 0x0C, 0x15, 0x46, 0xAD, 0xAA, 0x33, 0x43, 0x4A, 0x91, 0x23, 0x6A).map(_.toByte),
+            8, List(0x01, 0x00, 0x06, 0x00, 0x57, 0x00, 0x01, 0x00).map(_.toByte), 23, 0),
+          new StreamTerminatorPacket(session.heartbeat, ErrorCode.None)
+        ))
+
     }
 
     def handleLogout(session: LoginSession, packet: LogoutPacket) = {
