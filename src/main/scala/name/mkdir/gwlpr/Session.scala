@@ -14,10 +14,10 @@ import com.eaio.uuid.UUID
 import packets.Packet
 
 trait ProvidesSession[T <: Session] {
-    def sessions : HashMap[UUID, T]
-    def initSession(socket: SocketHandle) : T
-    // XXX - Which other methods should be exposed?
-    //    def deleteSession(uuid: UUID) : Boolean
+  def sessions : HashMap[UUID, T]
+  def initSession(socket: SocketHandle) : T
+  // XXX - Which other methods should be exposed?
+  //    def deleteSession(uuid: UUID) : Boolean
 }
 
 object SessionState extends Enumeration {
@@ -26,31 +26,31 @@ object SessionState extends Enumeration {
 }
 trait Session {
 
-    import SessionState._
+  import SessionState._
 
-    def socket: SocketHandle
+  def socket: SocketHandle
 
-    def setState(s: SessionState) = this.state = s
+  def setState(s: SessionState) = this.state = s
 
-    def write(b: ByteString) = socket.write(b)
-    def write(buf: ByteBuffer) = socket.write(ByteString(buf))
-    def write(b: Array[Byte]) = socket.write(ByteString(b))
+  def write(b: ByteString) = socket.write(b)
+  def write(buf: ByteBuffer) = socket.write(ByteString(buf))
+  def write(b: Array[Byte]) = socket.write(ByteString(b))
 
-    def write(p: Packet) : Unit = write(p.toBytes)
-    def write(p: List[Packet]) : Unit = write(p.map(_.toBytes).reduceLeft(_ ++ _))
+  def write(p: Packet) : Unit = write(p.toBytes)
+  def write(p: List[Packet]) : Unit = write(p.map(_.toBytes).reduceLeft(_ ++ _))
 
-    def uuid = socket.uuid
+  def uuid = socket.uuid
 
-    var state: SessionState = New
-    var seed: List[Byte] = Nil
+  var state: SessionState = New
+  var seed: List[Byte] = Nil
 
-    var buffer: Option[ByteBuffer] = None
-    
-    val securityKeys : List[Array[Byte]] = List(new Array[Byte](4), new Array[Byte](4))
+  var buffer: Option[ByteBuffer] = None
 
-    {
-        val rnd = new Random
-        rnd.nextBytes(securityKeys(0))
-        rnd.nextBytes(securityKeys(1))
-    }
+  val securityKeys : List[Array[Byte]] = List(new Array[Byte](4), new Array[Byte](4))
+
+  {
+    val rnd = new Random
+    rnd.nextBytes(securityKeys(0))
+    rnd.nextBytes(securityKeys(1))
+  }
 }

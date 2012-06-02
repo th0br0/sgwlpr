@@ -13,82 +13,82 @@ import events._
 import SessionState.SessionState
 
 trait ServerTrait[T <: Session] extends Actor with ActorLogging with ProvidesSession[T] {
-    import IO._
-    
-    /** the port to listen on */
-    def port: Int
-    // XXX - should we also specify the listen host manually?
-    lazy val socketAddress = new InetSocketAddress(port)
+  import IO._
 
-    override def preStart {
-        import akka.actor.Props
-        context.actorOf(Props(new SeedHandler), name = "seedHandler")
+  /** the port to listen on */
+  def port: Int
+  // XXX - should we also specify the listen host manually?
+  lazy val socketAddress = new InetSocketAddress(port)
 
-        IOManager(context.system) listen socketAddress
+  override def preStart {
+    import akka.actor.Props
+    context.actorOf(Props(new SeedHandler), name = "seedHandler")
+
+    IOManager(context.system) listen socketAddress
 
 
+  }
+
+  def deserialiserForState(state: SessionState) : Deserialiser
+  def deserialisePackets(session: T, buffer: ByteBuffer, deserialise: Deserialiser) : List[Packet] = {
+    // XXX - use a ListBuffer here
+    var ret : List[Packet] = Nil
+
+    val buf = {
+      if(session.buffer == None)
+        buffer
+      else
+        session.buffer.get.put(buffer)
     }
 
-    def deserialiserForState(state: SessionState) : Deserialiser
-    def deserialisePackets(session: T, buffer: ByteBuffer, deserialise: Deserialiser) : List[Packet] = {
-       // XXX - use a ListBuffer here
-       var ret : List[Packet] = Nil
+    def parse(buf: ByteBuffer) : List[Packet] = {
+      if(!buf.hasRemaining) return Nil
 
-       val buf = {
-            if(session.buffer == None)
-              buffer
-            else
-              session.buffer.get.put(buffer)
-            }
+      val pos = buf.position
+      val packet = deserialise(buf)
+      if(packet.isInstanceOf[PacketError])
+        {
+        buf.position(pos)
+        session.buffer = Some(buf.slice)
 
-       def parse(buf: ByteBuffer) : List[Packet] = {
-            if(!buf.hasRemaining) return Nil
+        log.debug(packet.toString)
 
-            val pos = buf.position
-            val packet = deserialise(buf)
-            if(packet.isInstanceOf[PacketError])
-            {
-                buf.position(pos)
-                session.buffer = Some(buf.slice)
-    
-                log.debug(packet.toString)
-
-                Nil
-            } else
-                List(packet) ::: parse(buf)
-       }
-        
-       parse(buf)
+        Nil
+      } else
+      List(packet) ::: parse(buf)
     }
 
-    def receive = {
-      case NewClient(server) => {
-        // XXX - eventually, add some connection limitation here
-        val socket = server.accept()
-        log.info("Accepted new client with UUID: " + socket.uuid)
-        
-        // Construct new session and add it to the hashmap
-        val session = initSession(socket)
-        sessions += socket.uuid -> session
+    parse(buf)
+  }
 
-        self ! ClientConnected(session)
-      }
+  def receive = {
+    case NewClient(server) => {
+      // XXX - eventually, add some connection limitation here
+      val socket = server.accept()
+      log.info("Accepted new client with UUID: " + socket.uuid)
 
-      case Read(socket, byteString) => {
-       val buffer = byteString.toByteBuffer.order(ByteOrder.LITTLE_ENDIAN)
-       val session = sessions(socket.uuid)
+      // Construct new session and add it to the hashmap
+      val session = initSession(socket)
+      sessions += socket.uuid -> session
 
-       val packets = deserialisePackets(session, buffer, deserialiserForState(session.state))
-       packets.foreach{ p => log.debug("received: " + p) }
-       packets.foreach{ p => context.system.eventStream.publish(p.toEvent(session)) }
-      }
-      case Closed(socket, cause) => {
-        log.info("Client(UUID: %s) lost. Reason: %s".format(socket.uuid, cause))
-
-        self ! ClientDisconnected(sessions(socket.uuid))
-
-        sessions -= socket.uuid
-      }
+      self ! ClientConnected(session)
     }
+
+    case Read(socket, byteString) => {
+      val buffer = byteString.toByteBuffer.order(ByteOrder.LITTLE_ENDIAN)
+      val session = sessions(socket.uuid)
+
+      val packets = deserialisePackets(session, buffer, deserialiserForState(session.state))
+      packets.foreach{ p => log.debug("received: " + p) }
+      packets.foreach{ p => context.system.eventStream.publish(p.toEvent(session)) }
+    }
+    case Closed(socket, cause) => {
+      log.info("Client(UUID: %s) lost. Reason: %s".format(socket.uuid, cause))
+
+      self ! ClientDisconnected(sessions(socket.uuid))
+
+      sessions -= socket.uuid
+    }
+  }
 
 }

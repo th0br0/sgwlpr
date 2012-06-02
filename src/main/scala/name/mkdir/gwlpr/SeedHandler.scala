@@ -7,17 +7,17 @@ import unenc._
 import events._
 
 class SeedHandler extends Handler {
-    private val seed: List[Byte] = {
-        val arr = new Array[Byte](20)
-        (new Random).nextBytes(arr)
-        arr.toList
-    }
+  private val seed: List[Byte] = {
+    val arr = new Array[Byte](20)
+    (new Random).nextBytes(arr)
+    arr.toList
+  }
 
-    def handleClientSeed(session: Session, packet: ClientSeedPacket) : Unit = {
-        session.seed = packet.seed
-        session.state = SessionState.Accepted
-        session.write(new ServerSeedPacket(seed))
-    }
+  def handleClientSeed(session: Session, packet: ClientSeedPacket) : Unit = {
+    session.seed = packet.seed
+    session.state = SessionState.Accepted
+    session.write(new ServerSeedPacket(seed))
+  }
 
-    addMessageHandler(manifest[ClientSeedPacketEvent], handleClientSeed)
+  addMessageHandler(manifest[ClientSeedPacketEvent], handleClientSeed)
 }

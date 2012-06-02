@@ -11,21 +11,21 @@ import events._
 import SessionState.SessionState
 
 class LoginServer(val port: Int) extends ServerTrait[LoginSession] {
-    def initSession(socket: SocketHandle) = LoginSession(socket)
-    val sessions : HashMap[UUID, LoginSession] = HashMap.empty
+  def initSession(socket: SocketHandle) = LoginSession(socket)
+  val sessions : HashMap[UUID, LoginSession] = HashMap.empty
 
-    def deserialiserForState(state: SessionState) : Deserialiser = state match {
-        case SessionState.New => unenc.Deserialise
-        case SessionState.Accepted => c2l.Deserialise
-    }
+  def deserialiserForState(state: SessionState) : Deserialiser = state match {
+    case SessionState.New => unenc.Deserialise
+    case SessionState.Accepted => c2l.Deserialise
+  }
 
-    override def preStart = {
-        import akka.actor.Props
+  override def preStart = {
+    import akka.actor.Props
 
-        super.preStart
+    super.preStart
 
-        // XXX - is there some way to define the name inside the actor as with akka 1.* ?
-        context.actorOf(Props(new GenericHandler), name="generic")
-        context.actorOf(Props(new AuthenticationHandler), name="authentication")
-    }
+    // XXX - is there some way to define the name inside the actor as with akka 1.* ?
+    context.actorOf(Props(new GenericHandler), name="generic")
+    context.actorOf(Props(new AuthenticationHandler), name="authentication")
+  }
 }
