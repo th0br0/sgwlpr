@@ -10,8 +10,6 @@ trait Handler extends Actor with ActorLogging {
   type EventListener = Event => Unit
 
   // XXX - this does not support inheritance atm 
-
-
   private val handlers : HashMap[Class[_], EventListener] = HashMap.empty
 
   def subscribeTo(c: Class[_]) = context.system.eventStream.subscribe(self, c)

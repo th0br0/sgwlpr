@@ -4783,7 +4783,8 @@
       <Field type="int32"><Info><Name>exitCode</Name></Info></Field>
     </Packet>
     <Packet header="15">
-      <Info>
+	<Info>
+	    <Name>HardwareInfo</Name>
         <Description>Auto generated</Description>
         <Author>GWLPR Template Updater</Author>
       </Info>
@@ -5028,13 +5029,14 @@
       <Field occurs="28" prefixType="int16" static="false" type="utf16"/>
     </Packet>
     <Packet header="41">
-      <Info>
+	<Info>
+	<Name>PlayRequest</Name>
         <Description>Auto generated</Description>
         <Author>GWLPR Template Updater</Author>
       </Info>
+      <Field type="int32"><Info><Name>heartbeat</Name></Info></Field>
       <Field type="int32"/>
-      <Field type="int32"/>
-      <Field type="int32"/>
+      <Field type="int32"><Info><Name>mapId</Name></Info></Field>
       <Field type="int32"/>
       <Field type="int32"/>
       <Field type="int32"/>
