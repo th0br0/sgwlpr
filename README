@@ -1,3 +1,9 @@
 A Guild Wars 1 Lan Private Server written in Scala
 
 Thanks to the guys who did the initial gwlpr & gwlpr code and reversing!
+
+Run doing:
+cd codegen
+sbt update run
+cd ..
+sbt update run
