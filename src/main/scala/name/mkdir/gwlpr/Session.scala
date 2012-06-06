@@ -46,11 +46,12 @@ trait Session {
 
   var buffer: Option[ByteBuffer] = None
 
-  val securityKeys : List[Array[Byte]] = List(new Array[Byte](4), new Array[Byte](4))
-
+  val securityKeys : List[Int] = 
   {
     val rnd = new Random
-    rnd.nextBytes(securityKeys(0))
-    rnd.nextBytes(securityKeys(1))
+    List(
+      rnd.nextInt,
+      rnd.nextInt
+    )
   }
 }

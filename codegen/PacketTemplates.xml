@@ -100,14 +100,15 @@
     </Packet>
     <Packet header="9">
       <Info>
+        <Name>Dispatch</Name>
         <Description>Auto generated</Description>
         <Author>GWLPR Template Updater</Author>
       </Info>
-      <Field type="int32"/>
-      <Field type="int32"/>
-      <Field type="int32"/>
-      <Field occurs="24" prefixType="int16" static="true" type="int8"/>
-      <Field type="int32"/>
+      <Field type="int32"><Info><Name>heartbeat</Name></Info></Field>
+      <Field type="int32"><Info><Name>securityKey1</Name></Info></Field>
+      <Field type="int32"><Info><Name>mapId</Name></Info></Field>
+      <Field occurs="24" prefixType="int16" static="true" type="int8"><Info><Name>serverInfo</Name></Info></Field>
+      <Field type="int32"><Info><Name>securityKey2</Name></Info></Field>
     </Packet>
     <Packet header="10">
       <Info>
@@ -5030,7 +5031,7 @@
     </Packet>
     <Packet header="41">
 	<Info>
-	<Name>PlayRequest</Name>
+	<Name>DispatchRequest</Name>
         <Description>Auto generated</Description>
         <Author>GWLPR Template Updater</Author>
       </Info>
