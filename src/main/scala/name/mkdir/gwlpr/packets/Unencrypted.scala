@@ -75,8 +75,7 @@ object Deserialise extends Deserialiser {
 
     header match {
       case 16896 => new ClientSeedPacket(getBytes(64))
-      case 0x400 => 
-      new ClientVersionPacket(
+      case 0x400 => new ClientVersionPacket(
         buf.getShort,
         buf.getInt,
         buf.getInt,

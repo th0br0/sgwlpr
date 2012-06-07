@@ -17,7 +17,9 @@ class DispatchHandler extends Handler {
 
   def buildServerInfo(ip: String, port: Int) : List[Byte] = {
     val addr = InetAddress.getByName(ip).getAddress.toList
-    List(2, 0).map(_.toByte) ::: addr ::: List(port >> 8, port & 0xFF).map(_.toByte)
+    val ret = List(2, 0).map(_.toByte) ::: List(port >> 8, port & 0xFF).map(_.toByte) ::: addr
+
+    ret ::: (Iterator.fill(24 - ret.length)(0.toByte)).toList
   }
 
   def handleDispatch(session: LoginSession, request: DispatchRequestPacket) = {

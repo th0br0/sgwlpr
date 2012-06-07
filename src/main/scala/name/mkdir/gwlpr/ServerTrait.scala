@@ -22,7 +22,7 @@ trait ServerTrait[T <: Session] extends Actor with ActorLogging with ProvidesSes
 
   override def preStart {
     import akka.actor.Props
-    context.actorOf(Props(new SeedHandler), name = "seedHandler")
+//    context.actorOf(Props(new SeedHandler), name = "seedHandler")
 
     IOManager(context.system) listen socketAddress
 

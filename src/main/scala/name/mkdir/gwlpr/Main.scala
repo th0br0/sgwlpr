@@ -1,6 +1,7 @@
 package name.mkdir.gwlpr
 
 import login.LoginServer
+import registration.RegistrationServer
 import akka.actor.{ActorSystem, Props}
 
 object Main extends App {
@@ -8,7 +9,12 @@ object Main extends App {
   val system = ActorSystem()
 
   system.actorOf(Props(new ServerManager), name="manager")
+
+  // XXX - this should not be in here ;(
+  system.actorOf(Props(new SeedHandler), name = "seedHandler")
+
   system.actorOf(Props(new LoginServer(port)), name="login")
+  system.actorOf(Props(new RegistrationServer(port + 1)), name="registration")
 
   while(readLine != "exit") {}
   system.shutdown
