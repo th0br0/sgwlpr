@@ -24,8 +24,16 @@ trait Handler extends Actor with ActorLogging {
     case d => 
   }
 
-  def addHandler(clazz: Class[_], fun: EventListener) = {
+  private def addHandler(clazz: Class[_], fun: EventListener) = {
     handlers += (clazz -> fun)
+  }
+
+  def addEventHandler[T <: Event](m: Manifest[T], fun: T => Unit) = {
+    def handler()(e: Event) = {
+      fun(e.asInstanceOf[T])
+    }
+    addHandler(m.erasure, handler())
+    subscribeTo(m.erasure)
   }
 
   def addMessageHandler[T <: ClientMessageEvent, S <: Session, P <: Packet](m: Manifest[T], fun: (S, P) => Unit) = {

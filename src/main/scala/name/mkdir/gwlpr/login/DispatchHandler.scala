@@ -5,7 +5,7 @@ import java.net.InetAddress
 import akka.pattern.ask
 import akka.util.duration._ 
 
-import name.mkdir.gwlpr.{LookupServer, ServerInfo, ServerNotFound}
+import name.mkdir.gwlpr.{LookupServer, ServerInfo, ServerNotFound, SessionTransit}
 import name.mkdir.gwlpr.packets._
 import name.mkdir.gwlpr.events._
 
@@ -29,6 +29,7 @@ class DispatchHandler extends Handler {
     (manager.ask(LookupServer(request.mapId))(5 seconds)) onSuccess {
         case ServerInfo(server, ip, port) => 
           {
+            server ! SessionTransit(session)
             session.write(new DispatchPacket(
               session.heartbeat,
               session.securityKeys(0),

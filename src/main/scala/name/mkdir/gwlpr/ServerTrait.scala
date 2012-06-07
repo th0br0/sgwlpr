@@ -19,17 +19,25 @@ trait ServerTrait[T <: Session] extends Actor with ActorLogging with ProvidesSes
   /** the port to listen on */
   def port: Int
   // XXX - should we also specify the listen host manually?
-  lazy val socketAddress = new InetSocketAddress(port)
+  
   val eventStream = new EventStream
-
 
   override def preStart {
     import akka.actor.Props
-    context.actorOf(Props(new SeedHandler), name = "seedHandler")
-
-    IOManager(context.system) listen socketAddress
+    IOManager(context.system) listen (new InetSocketAddress(port))
 
 
+  }
+
+  // XXX - redesign this eventually...
+  def handlePacket(event: Event) = event match {
+    case c: unenc.ClientSeedPacketEvent => {
+      c.session.write(new unenc.ServerSeedPacket(Iterator.fill(20)(0.toByte).toList))
+      c.session.state = SessionState.Accepted
+
+      eventStream.publish(ClientAccepted(c.session))
+    }
+    case evt => eventStream.publish(evt)
   }
 
   def deserialiserForState(state: SessionState) : Deserialiser
@@ -41,6 +49,7 @@ trait ServerTrait[T <: Session] extends Actor with ActorLogging with ProvidesSes
       if(session.buffer == None)
         buffer
       else
+        // XXX - this doesn't work. fix it (create a new bytebuffer and merge the two old ones)
         session.buffer.get.put(buffer)
     }
 
@@ -82,7 +91,8 @@ trait ServerTrait[T <: Session] extends Actor with ActorLogging with ProvidesSes
       val session = sessions(socket.uuid)
 
       val packets = deserialisePackets(session, buffer, deserialiserForState(session.state))
-      packets.foreach{ p => log.debug("received: " + p); eventStream.publish(p.toEvent(session)) }
+
+      packets.foreach{ p => log.debug("received: " + p); handlePacket(p.toEvent(session)) }
     }
     case Closed(socket, cause) => {
       log.info("Client(UUID: %s) lost. Reason: %s".format(socket.uuid, cause))
@@ -95,6 +105,7 @@ trait ServerTrait[T <: Session] extends Actor with ActorLogging with ProvidesSes
     case SubscribeToEvent(clazz) => {
       eventStream.subscribe(sender, clazz)
     }
+    case _ =>
   }
 
 }

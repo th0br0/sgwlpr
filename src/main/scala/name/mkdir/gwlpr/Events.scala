@@ -12,6 +12,7 @@ trait ClientEvent extends Event {
   def session: Session
 }
 
+case class ClientAccepted(session: Session) extends ClientEvent
 case class ClientConnected(session: Session) extends ClientEvent
 case class ClientDisconnected(session: Session) extends ClientEvent
 

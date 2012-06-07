@@ -13,6 +13,8 @@ import com.eaio.uuid.UUID
 
 import packets.Packet
 
+case class SessionTransit[T <: Session](session: T)
+
 trait ProvidesSession[T <: Session] {
   def sessions : HashMap[UUID, T]
   def initSession(socket: SocketHandle) : T
@@ -24,20 +26,21 @@ object SessionState extends Enumeration {
   type SessionState = Value
   val New, Accepted = Value
 }
+
 trait Session {
 
   import SessionState._
 
   def socket: SocketHandle
 
-  def setState(s: SessionState) = this.state = s
-
   def write(b: ByteString) = socket.write(b)
   def write(buf: ByteBuffer) = socket.write(ByteString(buf))
   def write(b: Array[Byte]) = socket.write(ByteString(b))
-
   def write(p: Packet) : Unit = write(p.toBytes)
   def write(p: List[Packet]) : Unit = write(p.map(_.toBytes).reduceLeft(_ ++ _))
+
+  // XXX - emit event
+  def drop() = socket.close
 
   def uuid = socket.uuid
 
@@ -46,7 +49,7 @@ trait Session {
 
   var buffer: Option[ByteBuffer] = None
 
-  val securityKeys : List[Int] = 
+  var securityKeys : List[Int] = 
   {
     val rnd = new Random
     List(
