@@ -3696,11 +3696,12 @@
       <Info>
         <Description>Auto generated</Description>
         <Author>GWLPR Template Updater</Author>
+        <Name>InstanceLoadHeader</Name>
       </Info>
       <Field type="int8"/>
       <Field type="int8"/>
-      <Field type="int8"/>
-      <Field type="int8"/>
+      <Field type="int8"><Info><Value>0</Value></Info></Field>
+      <Field type="int8"><Info><Value>0</Value></Info></Field>
     </Packet>
     <Packet header="371">
       <Info>
