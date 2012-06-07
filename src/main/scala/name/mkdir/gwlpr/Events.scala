@@ -5,6 +5,9 @@ import name.mkdir.gwlpr.packets.Packet
 
 
 trait Event
+
+case class SubscribeToEvent(clazz: Class[_]) 
+
 trait ClientEvent extends Event {
   def session: Session
 }

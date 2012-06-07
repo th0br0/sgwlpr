@@ -12,7 +12,7 @@ trait Handler extends Actor with ActorLogging {
   // XXX - this does not support inheritance atm 
   private val handlers : HashMap[Class[_], EventListener] = HashMap.empty
 
-  def subscribeTo(c: Class[_]) = context.system.eventStream.subscribe(self, c)
+  def subscribeTo(c: Class[_]) = context.parent ! SubscribeToEvent(c)
 
   def receive = {
     case e: Event => {

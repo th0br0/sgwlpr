@@ -10,9 +10,6 @@ object Main extends App {
 
   system.actorOf(Props(new ServerManager), name="manager")
 
-  // XXX - this should not be in here ;(
-  system.actorOf(Props(new SeedHandler), name = "seedHandler")
-
   system.actorOf(Props(new LoginServer(port)), name="login")
   system.actorOf(Props(new RegistrationServer(port + 1)), name="registration")
 

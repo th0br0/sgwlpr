@@ -11,6 +11,7 @@ import packets._
 import events._
 
 import SessionState.SessionState
+import akka.event.EventStream
 
 trait ServerTrait[T <: Session] extends Actor with ActorLogging with ProvidesSession[T] {
   import IO._
@@ -19,10 +20,12 @@ trait ServerTrait[T <: Session] extends Actor with ActorLogging with ProvidesSes
   def port: Int
   // XXX - should we also specify the listen host manually?
   lazy val socketAddress = new InetSocketAddress(port)
+  val eventStream = new EventStream
+
 
   override def preStart {
     import akka.actor.Props
-//    context.actorOf(Props(new SeedHandler), name = "seedHandler")
+    context.actorOf(Props(new SeedHandler), name = "seedHandler")
 
     IOManager(context.system) listen socketAddress
 
@@ -79,8 +82,7 @@ trait ServerTrait[T <: Session] extends Actor with ActorLogging with ProvidesSes
       val session = sessions(socket.uuid)
 
       val packets = deserialisePackets(session, buffer, deserialiserForState(session.state))
-      packets.foreach{ p => log.debug("received: " + p) }
-      packets.foreach{ p => context.system.eventStream.publish(p.toEvent(session)) }
+      packets.foreach{ p => log.debug("received: " + p); eventStream.publish(p.toEvent(session)) }
     }
     case Closed(socket, cause) => {
       log.info("Client(UUID: %s) lost. Reason: %s".format(socket.uuid, cause))
@@ -88,6 +90,10 @@ trait ServerTrait[T <: Session] extends Actor with ActorLogging with ProvidesSes
       self ! ClientDisconnected(sessions(socket.uuid))
 
       sessions -= socket.uuid
+    }
+
+    case SubscribeToEvent(clazz) => {
+      eventStream.subscribe(sender, clazz)
     }
   }
 
