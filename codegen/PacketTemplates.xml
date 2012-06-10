@@ -785,12 +785,13 @@
     </Packet>
     <Packet header="44">
       <Info>
+        <Name>UpdateAttributePoints</Name>
         <Description>Auto generated</Description>
         <Author>GWLPR Template Updater</Author>
       </Info>
-      <Field type="agentid"/>
-      <Field type="int8"/>
-      <Field type="int8"/>
+      <Field type="agentid"><Info><Name>agentId</Name></Info></Field>
+      <Field type="int8"><Info><Name>pointsRemaining</Name></Info></Field>
+      <Field type="int8"><Info><Name>pointsMax</Name></Info></Field>
     </Packet>
     <Packet header="45">
       <Info>
@@ -1718,12 +1719,13 @@
     </Packet>
     <Packet header="147">
       <Info>
+        <Name>UpdateIntValue</Name>
         <Description>Auto generated</Description>
         <Author>GWLPR Template Updater</Author>
       </Info>
-      <Field type="int32"/>
-      <Field type="agentid"/>
-      <Field type="int32"/>
+      <Field type="int32"><Info><Name>valueId</Name></Info></Field>
+      <Field type="agentid"><Info><Name>agentId</Name></Info></Field>
+      <Field type="int32"><Info><Name>value</Name></Info></Field>
     </Packet>
     <Packet header="148">
       <Info>
@@ -1928,13 +1930,14 @@
     </Packet>
     <Packet header="171">
       <Info>
+        <Name>UpdatePrivateProfessions</Name>
         <Description>Auto generated</Description>
         <Author>GWLPR Template Updater</Author>
       </Info>
-      <Field type="agentid"/>
-      <Field type="int8"/>
-      <Field type="int8"/>
-      <Field type="int8"/>
+      <Field type="agentid"><Info><Name>agentId</Name></Info></Field>
+      <Field type="int8"><Info><Name>firstProfession</Name></Info></Field>
+      <Field type="int8"><Info><Name>secondProfession</Name></Info></Field>
+      <Field type="int8"><Info><Name>isPvp</Name></Info></Field>
     </Packet>
     <Packet header="172">
       <Info>
@@ -3773,6 +3776,7 @@
     </Packet>
     <Packet header="380">
       <Info>
+        <Name>CreateNewCharacterAcknowledge</Name>
         <Description>Auto generated</Description>
         <Author>GWLPR Template Updater</Author>
       </Info>
@@ -4955,7 +4959,7 @@
         <Description>Auto generated</Description>
         <Author>GWLPR Template Updater</Author>
       </Info>
-      <Field type="int32"/>
+      <Field type="int32"><Info><Name>heartbeat</Name></Info></Field>
       <Field occurs="512" prefixType="int16" static="false" type="int8"/>
     </Packet>
     <Packet header="33">
@@ -4963,7 +4967,7 @@
         <Description>Auto generated</Description>
         <Author>GWLPR Template Updater</Author>
       </Info>
-      <Field type="int32"/>
+      <Field type="int32"><Info><Name>heartbeat</Name></Info></Field>
       <Field type="int32"/>
     </Packet>
     <Packet header="34">
@@ -5223,6 +5227,7 @@
     </Packet>
     <Packet header="2">
       <Info>
+        <Name>Exit</Name>
         <Description>Auto generated</Description>
         <Author>GWLPR Template Updater</Author>
       </Info>
@@ -5910,11 +5915,12 @@
     </Packet>
     <Packet header="88">
       <Info>
+        <Name>SetCharacterProfession</Name>
         <Description>Auto generated</Description>
         <Author>GWLPR Template Updater</Author>
       </Info>
-      <Field type="int8"/>
-      <Field type="int8"/>
+      <Field type="int8"><Info><Name>campaign</Name></Info></Field>
+      <Field type="int8"><Info><Name>profession</Name></Info></Field>
     </Packet>
     <Packet header="89">
       <Info>
@@ -6192,11 +6198,12 @@
     </Packet>
     <Packet header="125">
       <Info>
+        <Name>UpdateCharacterBodypart</Name>
         <Description>Auto generated</Description>
         <Author>GWLPR Template Updater</Author>
       </Info>
-      <Field type="int8"/>
-      <Field type="int8"/>
+      <Field type="int8"><Info><Name>equipmentSlot</Name></Info></Field>
+      <Field type="int8"><Info><Name>color</Name></Info></Field>
     </Packet>
     <Packet header="126">
       <Info>
@@ -6247,6 +6254,7 @@
     </Packet>
     <Packet header="132">
       <Info>
+        <Name>ValidateNewCharacter</Name>
         <Description>Auto generated</Description>
         <Author>GWLPR Template Updater</Author>
       </Info>

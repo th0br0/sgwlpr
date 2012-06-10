@@ -38,5 +38,6 @@ class RegistrationServer(val port: Int) extends GameServerTrait[RegistrationSess
     context.actorFor("/user/manager") ! RegisterServer(0, ServerInfo(self, "localhost", port))
 
     context.actorOf(Props(new ClientAcceptedHandler), name="clientAccepted")
+    context.actorOf(Props(new CharacterHandler), name="character")
   }
 }

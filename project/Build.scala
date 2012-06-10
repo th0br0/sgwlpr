@@ -3,6 +3,8 @@ import sbt.Keys._
 
 object ProjectBuild extends Build {
 
+  
+
   val Settings = Project.defaultSettings ++ Seq(
     resolvers += "Typesafe Releases" at "http://repo.typesafe.com/typesafe/releases",
     libraryDependencies += "com.typesafe.akka" % "akka-actor" % "2.0",
@@ -13,7 +15,7 @@ object ProjectBuild extends Build {
     id = "root",
     base = file("."),
     settings = Project.defaultSettings ++ Seq(
-      name := "GWLPR in Scala",
+      name := "SGWLPR",
       organization := "sgwlpr",
       version := "0.1-SNAPSHOT",
       scalaVersion := "2.9.1"
@@ -45,4 +47,6 @@ lazy val framework = Project(
   lazy val registration = Project(
     id = "registration", base = file("registration")
   ) dependsOn(framework, packets, login)
+
+
 }

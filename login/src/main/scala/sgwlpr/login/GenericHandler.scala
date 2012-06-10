@@ -28,7 +28,19 @@ class GenericHandler extends Handler {
     log.debug("Reason for disconnection: " + packet.exitCode)
   }
 
+  def handlePacket32(session: LoginSession, packet: c2l.Packet32) = {
+    session.heartbeat = packet.heartbeat
+    session.write(new StreamTerminatorPacket(heartbeat = session.heartbeat))
+  }
+
+  def handlePacket33(session: LoginSession, packet: c2l.Packet33) = {
+    session.heartbeat = packet.heartbeat
+  }
+
   addMessageHandler(manifest[ComputerInfoPacketEvent], handleComputerInfo)
   addMessageHandler(manifest[ResponseRequestPacketEvent], handleResponseRequest)
   addMessageHandler(manifest[ExitPacketEvent], handleExit)
+
+  addMessageHandler(manifest[c2l.Packet32Event], handlePacket32)
+  addMessageHandler(manifest[c2l.Packet33Event], handlePacket33)
 }
