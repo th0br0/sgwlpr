@@ -10,7 +10,11 @@ class ClientAcceptedHandler extends Handler {
   def handleClientAccepted(event: ClientAccepted) = {
     val session = event.session
 
-    log.debug("client accepted -- yay --  " + session.state)
+    session.write(List(
+      new InstanceLoadHeaderPacket(0x3F, 0x3F),
+      new Packet379
+    ))
+
   }
 
 

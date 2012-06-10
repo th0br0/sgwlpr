@@ -5,7 +5,7 @@ import java.io.File
 import FieldTypes._
 
 object CodeGenerator {
-  val stdir = new StringTemplateGroup("tpls", new File("templates"))
+  val stdir = new StringTemplateGroup("tpls", new File("codegen/templates"))
 
   def generate(packet: Packet): String = {
     val classTemplate = stdir.template("class")

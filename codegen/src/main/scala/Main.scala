@@ -117,9 +117,9 @@ object Main extends App {
   /** Generates scala code from the packet template xml */
   override def main(args: Array[String]): Unit = {
     // XXX - get these as config options from args
-    val target = "src-gen"
+    val target = "codegen/src-gen"
     val packageName = "name.mkdir.gwlpr"
-    val fileName = "PacketTemplates.xml"
+    val fileName = "codegen/PacketTemplates.xml"
 
     val packetMap = mutable.Map.empty[String, List[Packet]]
 
@@ -149,12 +149,12 @@ object Main extends App {
 
         val bw = new BufferedWriter(new FileWriter(f))
 
-        val tpl = new StringTemplateGroup("", new File("templates")).template("base")
+        val tpl = new StringTemplateGroup("", new File("codegen/templates")).template("base")
         tpl.setAttribute("package", packageName)
         tpl.setAttribute("dir", d)
         tpl.setAttribute("content", p.foldLeft("") { (a, b) => a + "\n" + CodeGenerator.generate(b) })
 
-        val des = new StringTemplateGroup("", new File("templates")).template("deserialiser")
+        val des = new StringTemplateGroup("", new File("codegen/templates")).template("deserialiser")
         des.setAttribute("cases", p.map { packet =>
           "case %d => %s(buf)\n".format(packet.header, packet.name)
         })

@@ -3,10 +3,17 @@ package name.mkdir.gwlpr
 import login.LoginServer
 import registration.RegistrationServer
 import akka.actor.{ActorSystem, Props}
+import com.typesafe.config.ConfigFactory
 
 object Main extends App {
+  val config = ConfigFactory.parseString("""
+    akka {
+      loglevel = DEBUG
+    }
+  """)
+  
   val port = Option(System.getenv("PORT")) map (_.toInt) getOrElse 8112
-  val system = ActorSystem()
+  val system = ActorSystem("default", config = config)
 
   system.actorOf(Props(new ServerManager), name="manager")
 
