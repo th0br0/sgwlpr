@@ -1,8 +1,8 @@
-package name.mkdir.gwlpr.registration
+package sgwlpr.registration
 
 import akka.actor.IO.SocketHandle
 
-import name.mkdir.gwlpr.Session
+import sgwlpr.Session
 
 case class RegistrationSession(socket: SocketHandle) extends Session {
 }

@@ -1,4 +1,4 @@
-package name.mkdir.gwlpr.types
+package sgwlpr.types
 
 // XXX - Write or use a proper vector implementation!
 case class Vector2(x: Float, y: Float)

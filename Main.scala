@@ -1,4 +1,4 @@
-package name.mkdir.gwlpr
+package sgwlpr
 
 import login.LoginServer
 import registration.RegistrationServer

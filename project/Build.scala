@@ -14,7 +14,7 @@ object ProjectBuild extends Build {
     base = file("."),
     settings = Project.defaultSettings ++ Seq(
       name := "GWLPR in Scala",
-      organization := "name.mkdir",
+      organization := "sgwlpr",
       version := "0.1-SNAPSHOT",
       scalaVersion := "2.9.1"
     )

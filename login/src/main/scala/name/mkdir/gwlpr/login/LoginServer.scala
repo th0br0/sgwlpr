@@ -1,10 +1,10 @@
-package name.mkdir.gwlpr.login
+package sgwlpr.login
 
 import akka.actor.IO.SocketHandle
 import com.eaio.uuid.UUID
 import scala.collection.mutable.HashMap
 
-import name.mkdir.gwlpr._
+import sgwlpr._
 import packets._
 import events._
 

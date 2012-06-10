@@ -1,4 +1,4 @@
-package name.mkdir.gwlpr
+package sgwlpr
 
 import akka.actor.Actor
 import akka.actor.ActorLogging

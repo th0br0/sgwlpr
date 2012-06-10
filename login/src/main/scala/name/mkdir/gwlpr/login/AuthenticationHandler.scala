@@ -1,9 +1,9 @@
-package name.mkdir.gwlpr.login
+package sgwlpr.login
 
 import java.util.Random
 
-import name.mkdir.gwlpr.packets._
-import name.mkdir.gwlpr.events._
+import sgwlpr.packets._
+import sgwlpr.events._
 
 import c2l._
 import l2c._

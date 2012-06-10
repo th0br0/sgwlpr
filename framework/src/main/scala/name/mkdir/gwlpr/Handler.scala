@@ -1,9 +1,9 @@
-package name.mkdir.gwlpr.events
+package sgwlpr.events
 
 import akka.actor.Actor
 import akka.actor.ActorLogging
-import name.mkdir.gwlpr.Session
-import name.mkdir.gwlpr.packets.Packet
+import sgwlpr.Session
+import sgwlpr.packets.Packet
 
 trait Handler extends Actor with ActorLogging {
   import scala.collection.mutable.HashMap

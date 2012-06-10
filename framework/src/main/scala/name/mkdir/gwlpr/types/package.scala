@@ -1,4 +1,4 @@
-package name.mkdir.gwlpr
+package sgwlpr
 
 package object types {
   implicit def int2AgentId(i: Int) : AgentId = AgentId(i)

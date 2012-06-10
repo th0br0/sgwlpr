@@ -1,7 +1,7 @@
-package name.mkdir.gwlpr.events
+package sgwlpr.events
 
-import name.mkdir.gwlpr.Session
-import name.mkdir.gwlpr.packets.Packet
+import sgwlpr.Session
+import sgwlpr.packets.Packet
 
 
 trait Event

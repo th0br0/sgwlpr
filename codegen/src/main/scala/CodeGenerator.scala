@@ -1,4 +1,4 @@
-package name.mkdir.codegen
+package sgwlpr.codegen
 
 import org.clapper.scalasti._
 import java.io.File

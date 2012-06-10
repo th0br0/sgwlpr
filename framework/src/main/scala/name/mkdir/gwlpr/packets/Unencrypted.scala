@@ -1,8 +1,8 @@
-package name.mkdir.gwlpr.packets.unenc
+package sgwlpr.packets.unenc
 
-import name.mkdir.gwlpr.packets._
-import name.mkdir.gwlpr.Session
-import name.mkdir.gwlpr.events.ClientMessageEvent
+import sgwlpr.packets._
+import sgwlpr.Session
+import sgwlpr.events.ClientMessageEvent
 
 import java.nio.{ByteBuffer, ByteOrder}
 

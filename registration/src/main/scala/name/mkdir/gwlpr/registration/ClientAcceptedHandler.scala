@@ -1,7 +1,7 @@
-package name.mkdir.gwlpr.registration
+package sgwlpr.registration
 
-import name.mkdir.gwlpr.packets._
-import name.mkdir.gwlpr.events._
+import sgwlpr.packets._
+import sgwlpr.events._
 
 import g2c._
 

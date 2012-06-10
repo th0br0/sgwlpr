@@ -1,8 +1,8 @@
-package name.mkdir.gwlpr.login
+package sgwlpr.login
 
 import akka.actor.IO.SocketHandle
 
-import name.mkdir.gwlpr.Session
+import sgwlpr.Session
 
 case class LoginSession(socket: SocketHandle) extends Session {
   var heartbeat = 0

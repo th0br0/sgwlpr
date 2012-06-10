@@ -1,4 +1,4 @@
-package name.mkdir.gwlpr
+package sgwlpr
 
 import com.eaio.uuid.UUID
 import scala.collection.mutable.ListBuffer

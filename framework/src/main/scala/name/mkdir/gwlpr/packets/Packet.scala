@@ -1,8 +1,8 @@
-package name.mkdir.gwlpr.packets
+package sgwlpr.packets
 
 import java.nio.ByteBuffer
-import name.mkdir.gwlpr.events.ClientMessageEvent
-import name.mkdir.gwlpr.Session
+import sgwlpr.events.ClientMessageEvent
+import sgwlpr.Session
 
 // XXX - turn this into a trait with "def header: Short" ?
 abstract class Packet(val header: Short) {

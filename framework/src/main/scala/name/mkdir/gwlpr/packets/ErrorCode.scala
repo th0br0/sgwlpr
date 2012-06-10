@@ -1,4 +1,4 @@
-package name.mkdir.gwlpr.packets
+package sgwlpr.packets
 
 object ErrorCode {
   val None = 0

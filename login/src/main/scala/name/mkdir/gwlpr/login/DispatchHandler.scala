@@ -1,13 +1,13 @@
-package name.mkdir.gwlpr.login
+package sgwlpr.login
 
 import java.net.InetAddress
 
 import akka.pattern.ask
 import akka.util.duration._ 
 
-import name.mkdir.gwlpr.{LookupServer, ServerInfo, ServerNotFound, SessionTransit}
-import name.mkdir.gwlpr.packets._
-import name.mkdir.gwlpr.events._
+import sgwlpr.{LookupServer, ServerInfo, ServerNotFound, SessionTransit}
+import sgwlpr.packets._
+import sgwlpr.events._
 
 import c2l._
 import l2c._

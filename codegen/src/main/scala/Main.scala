@@ -1,4 +1,4 @@
-package name.mkdir.codegen
+package sgwlpr.codegen
 
 import scala.xml._
 import scala.collection._
@@ -28,7 +28,7 @@ object FieldTypes {
  * Internal representation of the array information associated with a packet
  * @param length the length of the array
  * @param fixedLength is the length constant
- * @param prefixType the [[name.mkdir.gwlpr.codegen.FieldType]] of the prefix that needs to be serialised if the length is not constant
+ * @param prefixType the [[sgwlpr.codegen.FieldType]] of the prefix that needs to be serialised if the length is not constant
  */
 case class ArrayInfo(length: Int, fixedLength: Boolean, prefixType: FieldType)
 
@@ -41,7 +41,7 @@ abstract sealed trait PacketField {
   def size: Int
 
   /**
-   * Calculates the size of a packet taking available [[name.mkdir.gwlpr.codegen.ArrayInfo]] into account
+   * Calculates the size of a packet taking available [[sgwlpr.codegen.ArrayInfo]] into account
    *
    * @param size the base packet size that is used for calculations
    */
@@ -118,7 +118,7 @@ object Main extends App {
   override def main(args: Array[String]): Unit = {
     // XXX - get these as config options from args
     val target = "codegen/src-gen"
-    val packageName = "name.mkdir.gwlpr"
+    val packageName = "sgwlpr"
     val fileName = "codegen/PacketTemplates.xml"
 
     val packetMap = mutable.Map.empty[String, List[Packet]]
