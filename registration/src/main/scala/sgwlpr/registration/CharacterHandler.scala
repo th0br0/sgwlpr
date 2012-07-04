@@ -44,7 +44,7 @@ class CharacterHandler extends Handler {
   }
 
   def validateNewCharacter(session: RegistrationSession, packet: ValidateNewCharacterPacket) = {
-    session.character = session.character.copy(name = Some(packet.characterName), appearance = Some(Character.Appearance(packet.data)))
+    session.character = session.character.copy(name = Some(packet.characterName), appearance = Some(CharacterAppearance(packet.data)))
 
     session.account = session.account.map { a => a.copy(characters = session.character :: a.characters) }
 

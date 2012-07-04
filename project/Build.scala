@@ -34,7 +34,7 @@ object ProjectBuild extends Build {
     id = "codegen",
     base = file("codegen"),
     settings = Project.defaultSettings ++ Seq(
-      scalaVersion := "2.9.2",
+      scalaVersion := "2.9.1",
       libraryDependencies += "org.clapper" %% "scalasti" % "0.5.8"
     )
   )

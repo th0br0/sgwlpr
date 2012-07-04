@@ -7,7 +7,7 @@ case class Character(name: Option[String] = None,
                      level: Int = 1,
                      isPvp: Boolean = false,
                      mapId: Option[Int] = None,
-                     appearance: Option[Character.Appearance] = None) {
+                     appearance: Option[CharacterAppearance] = None) {
 
 
   def toBytes : List[Byte] = {
@@ -32,29 +32,29 @@ case class Character(name: Option[String] = None,
               
 }
 
-object Character {
-  // XXX - rename this to CharacterAppearance?
-  case class Appearance(
-    profession: Byte,
-    campaign: Byte,
-    sex: Byte,
-    height: Byte,
-    skinColor: Byte,
-    hairColor: Byte,
-    hairstyle: Byte,
-    face: Byte
-  )
+case class CharacterAppearance(
+  // XXX - these supposedly are Bytes, but salat doesn't like Bytes :(
+  profession: Int,
+  campaign: Int,
+  sex: Int,
+  height: Int,
+  skinColor: Int,
+  hairColor: Int,
+  hairstyle: Int,
+  face: Int
+) {
+//  private def this(a: Int, b: Int, c: Int, d: Int, e: Int, g: Int, h: Int, i: Int) = this(a.toByte, b.toByte, c.toByte, d.toByte, e.toByte, f.toByte, g.toByte, h.toByte, i.toByte)
+}
 
-  object Appearance {
-    def apply(data: List[Byte]) : Appearance = Appearance(
-      profession = ((data(2) >> 4) & 0xFF).toByte,
-      campaign = ((data(3) >> 6) & 3).toByte,
-      sex = (data(0) & 1).toByte,
-      height = ((data(0) >> 1) & 0xFF).toByte,
-      skinColor = (((data(0) >> 5) | (data(1) << 3)) & 0xFF).toByte,
-      hairColor = ((data(1) >> 2) & 0xFF).toByte,
-      hairstyle = (data(3) & 0x1F).toByte,
-      face = (((data(1) >> 7) | (data(2) << 1)) & 0x1F).toByte
-    )
-  }
+object CharacterAppearance {
+  def apply(data: List[Byte]) : CharacterAppearance = CharacterAppearance(
+    profession = ((data(2) >> 4) & 0xFF).toByte,
+    campaign = ((data(3) >> 6) & 3).toByte,
+    sex = (data(0) & 1).toByte,
+    height = ((data(0) >> 1) & 0xFF).toByte,
+    skinColor = (((data(0) >> 5) | (data(1) << 3)) & 0xFF).toByte,
+    hairColor = ((data(1) >> 2) & 0xFF).toByte,
+    hairstyle = (data(3) & 0x1F).toByte,
+    face = (((data(1) >> 7) | (data(2) << 1)) & 0x1F).toByte
+  )
 }

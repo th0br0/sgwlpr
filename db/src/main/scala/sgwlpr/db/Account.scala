@@ -23,5 +23,5 @@ object Account {
     multi = false,
     wc = new WriteConcern())
 
-  def findWithEmail(email: String) = AccountDAO.findOne(MongoDBObject("email" -> email))
+  def findByEmail(email: String) = AccountDAO.findOne(MongoDBObject("email" -> email))
 }
