@@ -4,6 +4,7 @@ import java.util.Random
 
 import sgwlpr.packets._
 import sgwlpr.events._
+import sgwlpr.db.Account
 
 import c2l._
 import l2c._
@@ -20,6 +21,9 @@ class AuthenticationHandler extends Handler {
 
   def performLogin(session: LoginSession, email: String, password: String, charName: String) : Boolean = {
     log.info("TODO: Implement performLogin")
+
+    session.account = Some(Account(email, password))
+
     return true
   }
 

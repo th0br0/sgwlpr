@@ -1,3 +1,3 @@
 package sgwlpr.db
 
-case class Account(email: Option[String] = None, characters: List[Character] = Nil)
+case class Account(email: String, password: String, characters: List[Character] = Nil)

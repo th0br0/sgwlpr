@@ -27,7 +27,7 @@ class RegistrationServer(val port: Int) extends GameServerTrait[RegistrationSess
       newSession.seed = session.seed
   
       newSession.account = session.account
-
+      
       true
     }
     case _ => log.debug("Do not know how to migrate session of type: " + oldSession.getClass); false
