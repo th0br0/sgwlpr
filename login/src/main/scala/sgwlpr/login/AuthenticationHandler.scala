@@ -62,7 +62,8 @@ class AuthenticationHandler extends Handler {
           characterName = c.name.get,
           characterData = c.toBytes
         )
-      } ::: List(
+      } :::
+      List(
       new GuiSettingsPacket(session.heartbeat, List[Byte](0)),
       new FriendsListEndPacket(session.heartbeat, 1),
       // XXX - analyse the values here...
@@ -78,7 +79,7 @@ class AuthenticationHandler extends Handler {
 
 }
 
-def handlePacket10(session: LoginSession, packet: c2l.Packet10) = {
+def handlePlay(session: LoginSession, packet: PlayPacket) = {
   session.account = Account.findByEmail(session.account.get.email)
   session.heartbeat = packet.heartbeat
 
@@ -100,6 +101,19 @@ def handlePacket10(session: LoginSession, packet: c2l.Packet10) = {
     ))
 }
 
+def handleDeleteCharacter(session: LoginSession, packet: DeleteCharacterPacket) = {
+  session.account = session.account.map { a => a.copy(characters = a.characters.filterNot(_.name.get == packet.characterName)) }
+  Account.save(session.account.get)
+
+  log.debug(session.account.get.characters.toString)
+
+
+  // XXX - check whether deletion actually works / character exists
+
+  session.heartbeat += 1
+  session.write(new StreamTerminatorPacket(session.heartbeat, ErrorCode.None))
+}
+
 def handlePasswordChange(session: LoginSession, packet: c2l.Packet25): Unit = {
   // XXX - Unknown
 }
@@ -110,5 +124,6 @@ def handleLogout(session: LoginSession, packet: LogoutPacket) = {
 addMessageHandler(manifest[LoginPacketEvent], handleLogin)
 addMessageHandler(manifest[LogoutPacketEvent], handleLogout)
 addMessageHandler(manifest[c2l.Packet25Event], handlePasswordChange)
-addMessageHandler(manifest[c2l.Packet10Event], handlePacket10)
+addMessageHandler(manifest[PlayPacketEvent], handlePlay)
+addMessageHandler(manifest[DeleteCharacterPacketEvent], handleDeleteCharacter)
 }

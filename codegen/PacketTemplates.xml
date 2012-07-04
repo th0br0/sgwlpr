@@ -4723,11 +4723,12 @@
     </Packet>
     <Packet header="7">
       <Info>
+        <Name>DeleteCharacter</Name>
         <Description>Auto generated</Description>
         <Author>GWLPR Template Updater</Author>
       </Info>
       <Field type="int32"/>
-      <Field occurs="20" prefixType="int16" static="false" type="utf16"/>
+      <Field occurs="20" prefixType="int16" static="false" type="utf16"><Info><Name>characterName</Name></Info></Field>
     </Packet>
     <Packet header="8">
       <Info>
@@ -4748,6 +4749,7 @@
     </Packet>
     <Packet header="10">
       <Info>
+        <Name>Play</Name>
         <Description>Auto generated</Description>
         <Author>GWLPR Template Updater</Author>
       </Info>
