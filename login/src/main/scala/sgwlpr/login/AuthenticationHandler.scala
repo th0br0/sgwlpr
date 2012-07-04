@@ -22,9 +22,19 @@ class AuthenticationHandler extends Handler {
   def performLogin(session: LoginSession, email: String, password: String, charName: String) : Boolean = {
     log.info("TODO: Implement performLogin")
 
-    session.account = Some(Account(email, password))
+    val res = Account.findWithEmail(email)
 
-    return true
+    if(res == None) {
+      // XXX - check for valid character name here!
+      log.debug("Created account!")
+      session.account = Some(Account(email = email, password = password))
+      Account.create(session.account.get)
+    } else if( res.get.password == password ) {
+      session.account = res
+      return true
+    }
+
+    return false
   }
 
   def handleLogin(session: LoginSession, packet: LoginPacket) : Unit = {

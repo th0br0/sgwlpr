@@ -48,6 +48,8 @@ class CharacterHandler extends Handler {
 
     session.account = session.account.map { a => a.copy(characters = session.character :: a.characters) }
 
+    Account.save(session.account.get)
+
     session.write(new Packet378(
       hash = Iterator.fill(16)(0.toByte).toList,
       characterName = session.character.name.get,
