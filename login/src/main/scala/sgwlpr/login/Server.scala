@@ -28,5 +28,6 @@ class LoginServer(val port: Int) extends ServerTrait[LoginSession] {
     context.actorOf(Props(new GenericHandler), name="generic")
     context.actorOf(Props(new AuthenticationHandler), name="authentication")
     context.actorOf(Props(new DispatchHandler), name="dispatch")
+    context.actorOf(Props(new AccountHandler), name="account")
   }
 }
