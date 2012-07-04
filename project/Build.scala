@@ -40,13 +40,17 @@ lazy val framework = Project(
     base = file("packets")
   ) dependsOn(framework)
 
+  lazy val db = Project(
+    id = "db", base = file("db")
+  ) dependsOn(framework)
+
   lazy val login = Project(
     id = "login", base = file("login")
-  ) dependsOn(framework, packets)
+  ) dependsOn(framework, packets, db)
 
   lazy val registration = Project(
     id = "registration", base = file("registration")
-  ) dependsOn(framework, packets, login)
+  ) dependsOn(framework, packets, login, db)
 
 
 }

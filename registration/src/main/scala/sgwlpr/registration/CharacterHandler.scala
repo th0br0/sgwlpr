@@ -7,6 +7,7 @@ import sgwlpr.types._
 import g2c._
 import c2g._
 
+import sgwlpr.db._
 
 class CharacterHandler extends Handler {
   val agentId : AgentId = 50 
@@ -33,6 +34,8 @@ class CharacterHandler extends Handler {
     // XXX - this should be an implicit or the like
     val isPvp : Byte = {if (packet.campaign == 1) 1 else 0 }.toByte
 
+    session.character = session.character.copy(isPvp = packet.campaign == 1, mapId = Some(startMap))
+
     // XXX - this is an awkward packet name
     session.write(new UpdatePrivateProfessionsPacket(
       agentId, packet.profession, 0, isPvp
@@ -41,7 +44,14 @@ class CharacterHandler extends Handler {
   }
 
   def validateNewCharacter(session: RegistrationSession, packet: ValidateNewCharacterPacket) = {
+    session.character = session.character.copy(name = Some(packet.characterName), appearance = Some(Character.Appearance(packet.data)))
 
+    session.write(new Packet378(
+      hash = Iterator.fill(16)(0.toByte).toList,
+      characterName = session.character.name.get,
+      mapId = session.character.mapId.get,
+      characterData = session.character.toBytes
+    ))
   }
 
   addMessageHandler(manifest[CreateNewCharacterPacketEvent], createCharacter)

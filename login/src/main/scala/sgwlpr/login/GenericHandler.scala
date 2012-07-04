@@ -28,6 +28,7 @@ class GenericHandler extends Handler {
     log.debug("Reason for disconnection: " + packet.exitCode)
   }
 
+  // TODO: decide what to do with the array data contained in these packets!
   def handlePacket32(session: LoginSession, packet: c2l.Packet32) = {
     session.heartbeat = packet.heartbeat
     session.write(new StreamTerminatorPacket(heartbeat = session.heartbeat))

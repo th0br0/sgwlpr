@@ -25,6 +25,8 @@ class RegistrationServer(val port: Int) extends GameServerTrait[RegistrationSess
     case session: LoginSession => {
       newSession.securityKeys = session.securityKeys
       newSession.seed = session.seed
+  
+      newSession.account = session.account
 
       true
     }

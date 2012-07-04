@@ -79,14 +79,15 @@
     </Packet>
     <Packet header="7">
       <Info>
+        <Name>CharacterInfo</Name>
         <Description>Auto generated</Description>
         <Author>GWLPR Template Updater</Author>
       </Info>
-      <Field type="int32"/>
-      <Field occurs="16" prefixType="int16" static="true" type="int8"/>
-      <Field type="int32"/>
-      <Field occurs="20" prefixType="int16" static="false" type="utf16"/>
-      <Field occurs="64" prefixType="int16" static="false" type="int8"/>
+      <Field type="int32"><Info><Name>heartbeat</Name></Info></Field>
+      <Field occurs="16" prefixType="int16" static="true" type="int8"><Info><Name>hash</Name></Info></Field>
+      <Field type="int32"><Info><Value>0</Value></Info></Field>
+      <Field occurs="20" prefixType="int16" static="false" type="utf16"><Info><Name>characterName</Name></Info></Field>
+      <Field occurs="64" prefixType="int16" static="false" type="int8"><Info><Name>appearance</Name></Info></Field>
     </Packet>
     <Packet header="8">
       <Info>
@@ -3763,10 +3764,10 @@
         <Description>Auto generated</Description>
         <Author>GWLPR Template Updater</Author>
       </Info>
-      <Field occurs="16" prefixType="int16" static="true" type="int8"/>
-      <Field occurs="20" prefixType="int16" static="false" type="utf16"/>
-      <Field type="int16"/>
-      <Field occurs="1024" prefixType="int16" static="false" type="int8"/>
+      <Field occurs="16" prefixType="int16" static="true" type="int8"><Info><Name>hash</Name></Info></Field>
+      <Field occurs="20" prefixType="int16" static="false" type="utf16"><Info><Name>characterName</Name></Info></Field>
+      <Field type="int16"><Info><Name>mapId</Name></Info></Field>
+      <Field occurs="1024" prefixType="int16" static="false" type="int8"><Info><Name>characterData</Name></Info></Field>
     </Packet>
     <Packet header="379">
       <Info>
@@ -6258,8 +6259,8 @@
         <Description>Auto generated</Description>
         <Author>GWLPR Template Updater</Author>
       </Info>
-      <Field occurs="20" prefixType="int16" static="false" type="utf16"/>
-      <Field occurs="8" prefixType="int16" static="true" type="int8"/>
+      <Field occurs="20" prefixType="int16" static="false" type="utf16"><Info><Name>characterName</Name></Info></Field>
+      <Field occurs="8" prefixType="int16" static="true" type="int8"><Info><Name>data</Name></Info></Field>
     </Packet>
     <Packet header="133">
       <Info>
