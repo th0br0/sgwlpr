@@ -25,12 +25,12 @@ class AuthenticationHandler extends Handler {
     val res = Account.findByEmail(email)
 
     if(res == None) {
-      // XXX - check for valid character name here!
-      log.debug("Created account!")
+      // XXX - we probably want to encrypt / hash / salt this ;)
       session.account = Some(Account(email = email, password = password))
       Account.create(session.account.get)
+      log.debug("Account(email = %s) created!".format(email))
     } else if( res.get.password == password ) {
-      // XXX - we probably want to encrypt / hash / salt this ;)
+      // XXX - check for valid character name here!
       session.account = res
     } else return false
 
@@ -39,10 +39,7 @@ class AuthenticationHandler extends Handler {
 
   def handleLogin(session: LoginSession, packet: LoginPacket) : Unit = {
     session.heartbeat = packet.heartbeat
-    log.debug("Client login: " + packet.email)
-    log.debug("client pw: " + password(packet))
-    log.debug("Character name: " + packet.charName)
-
+    
     if(!performLogin(session, packet.email, password(packet), packet.charName)) {
       // XXX - publish a clientdisconnected event
       session.write(new StreamTerminatorPacket(session.heartbeat, ErrorCode.UnknownUser))

@@ -14,8 +14,7 @@ class AccountHandler extends Handler {
     session.account = Account.findByEmail(session.account.get.email)
     session.heartbeat = packet.heartbeat
 
-    // XXX - supposedly, check that the provided characterName truly is in use ... otherwise disconnect the client
-
+    // XXX - confirm validity of characterName, otherwise we've got some badly behaving client ;) 
 
     // XXX - should this really go in here? why not emit some event that causes these packets to be sent...
     session.write(List(
@@ -35,7 +34,7 @@ class AccountHandler extends Handler {
   def handleCharacterDelete(session: LoginSession, packet: CharacterDeletePacket) = {
     Character.deleteWithName(session.account.get, packet.characterName)
 
-    // XXX - check whether deletion actually works / character exists
+    // XXX - implement deletion confirmation
 
     session.heartbeat += 1
     session.write(new StreamTerminatorPacket(session.heartbeat, ErrorCode.None))
