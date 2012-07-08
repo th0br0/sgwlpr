@@ -1,8 +1,5 @@
 package sgwlpr
 
-import login.LoginServer
-import registration.RegistrationServer
-import outpost.OutpostServer
 import akka.actor.{ActorSystem, Props}
 import com.typesafe.config.ConfigFactory
 
@@ -16,11 +13,13 @@ object Main extends App {
   val port = Option(System.getenv("PORT")) map (_.toInt) getOrElse 8112
   val system = ActorSystem("default", config = config)
 
-  system.actorOf(Props(new ServerManager), name="manager")
-
-  system.actorOf(Props(new LoginServer(port)), name="login")
-  system.actorOf(Props(new RegistrationServer(port + 1)), name="registration")
-  system.actorOf(Props(new OutpostServer(port + 2)), name="outpost148")
+  val listenAddress = "127.0.0.1"
+  val serverManager = system.actorOf(Props(new manager.ServerManager), name="manager")
+  serverManager ! manager.RegisterServerProvider(
+    system.actorOf(Props(new manager.ServerProvider(listenAddress, 9000)), name="provider")
+  )
+  
+  system.actorOf(Props(new login.Server(listenAddress, 7999)), name="login")
 
   while(readLine != "exit") {}
   system.shutdown

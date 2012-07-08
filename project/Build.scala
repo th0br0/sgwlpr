@@ -26,7 +26,7 @@ object ProjectBuild extends Build {
       version := "0.1-SNAPSHOT",
       scalaVersion := "2.9.2"
     )
-  ) dependsOn(login, registration, outpost)
+  ) dependsOn(manager, login)
  
   lazy val codegen = Project(
     id = "codegen",
@@ -37,6 +37,7 @@ object ProjectBuild extends Build {
     )
   )
   
+
   lazy val framework = Project(
     id = "framework", base = file("framework"),
     settings = Settings
@@ -64,5 +65,9 @@ object ProjectBuild extends Build {
     id = "outpost", base = file("outpost"), settings = Settings
   ) dependsOn(framework, packets, login, db)
 
+  lazy val manager = Project(
+    id = "manager", base = file("manager"),
+    settings = Settings
+  ) dependsOn(registration, outpost, framework)
 
 }

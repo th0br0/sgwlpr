@@ -11,7 +11,7 @@ import events._
 import SessionState.SessionState
 import login.LoginSession
 
-class RegistrationServer(val port: Int) extends GameServerTrait[RegistrationSession] {
+class Server(val listenAddress: String, val port: Int) extends GameServerTrait[RegistrationSession] {
   def initSession(socket: SocketHandle) = RegistrationSession(socket)
   
   val sessions : HashMap[UUID, RegistrationSession] = HashMap.empty
@@ -37,8 +37,6 @@ class RegistrationServer(val port: Int) extends GameServerTrait[RegistrationSess
     import akka.actor.Props
 
     super.preStart
-    context.actorFor("/user/manager") ! RegisterServer(0, ServerInfo(self, "localhost", port))
-
     context.actorOf(Props(new ClientAcceptedHandler), name="clientAccepted")
     context.actorOf(Props(new CharacterHandler), name="character")
   }

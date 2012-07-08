@@ -13,18 +13,26 @@ import events._
 import SessionState.SessionState
 import akka.event.EventStream
 
+// XXX - find some better place for these case classes to live in
+case class DistrictInfo(district: Int, region: Int, language: Byte) {
+  lazy val asInt = (district << 16) + region
+}
+case class ServerInfo(actor: ActorRef, ip: String, port: Int)
+case class LookupServer(mapId: Int)
+
 trait ServerTrait[T <: Session] extends Actor with ActorLogging with ProvidesSession[T] {
   import IO._
 
   /** the port to listen on */
   def port: Int
+  def listenAddress: String
   // XXX - should we also specify the listen host manually?
   
   val eventStream = new EventStream
-
+  
   override def preStart {
     import akka.actor.Props
-    IOManager(context.system) listen (new InetSocketAddress(port))
+    IOManager(context.system) listen (new InetSocketAddress(listenAddress, port))
 
 
   }

@@ -20,8 +20,6 @@ class CharacterHandler extends Handler {
     ))
 
     session.character = Some(new Character(parentId = session.account.get.id))
-
-    log.debug("weird shit!")
   }
 
   def setCharacterProfession(session: RegistrationSession, packet: CharacterSetProfessionPacket) = {

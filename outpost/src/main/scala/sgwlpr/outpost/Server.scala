@@ -11,7 +11,7 @@ import events._
 import SessionState.SessionState
 import login.LoginSession
 
-class OutpostServer(val port: Int) extends GameServerTrait[OutpostSession] {
+class Server(val listenAddress: String, val port: Int, mapId: Int, districtInfo: DistrictInfo) extends GameServerTrait[OutpostSession] {
   def initSession(socket: SocketHandle) = OutpostSession(socket)
   
   val sessions : HashMap[UUID, OutpostSession] = HashMap.empty
@@ -41,9 +41,6 @@ class OutpostServer(val port: Int) extends GameServerTrait[OutpostSession] {
 
     super.preStart
 
-    // XXX - we need to rework our servermanager to fire servers up on its own! 
-    context.actorFor("/user/manager") ! RegisterServer(148, ServerInfo(self, "localhost", port))
-
-    context.actorOf(Props(new ClientAcceptedHandler), name="clientAccepted")
+    context.actorOf(Props(new ClientAcceptedHandler(districtInfo)), name="clientAccepted")
   }
 }

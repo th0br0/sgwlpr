@@ -5,7 +5,7 @@ import java.net.InetAddress
 import akka.pattern.ask
 import akka.util.duration._ 
 
-import sgwlpr.{LookupServer, ServerInfo, ServerNotFound, SessionTransit}
+import sgwlpr.{ServerInfo, LookupServer, SessionTransit}
 import sgwlpr.packets._
 import sgwlpr.events._
 
@@ -17,6 +17,7 @@ class DispatchHandler extends Handler {
 
   def buildServerInfo(ip: String, port: Int) : List[Byte] = {
     val addr = InetAddress.getByName(ip).getAddress.toList
+
     val ret = List(2, 0).map(_.toByte) ::: List(port >> 8, port & 0xFF).map(_.toByte) ::: addr
 
     ret ::: (Iterator.fill(24 - ret.length)(0.toByte)).toList
@@ -38,7 +39,7 @@ class DispatchHandler extends Handler {
               session.securityKeys(1)
             ))
           }
-        case ServerNotFound => session.write(new StreamTerminatorPacket(session.heartbeat, ErrorCode.NetworkError))
+        //case ServerNotFound => session.write(new StreamTerminatorPacket(session.heartbeat, ErrorCode.NetworkError))
       } onFailure {
         // XXX - failure is only when we time out, right?
         case _ => session.write(new StreamTerminatorPacket(session.heartbeat, ErrorCode.NetworkError))

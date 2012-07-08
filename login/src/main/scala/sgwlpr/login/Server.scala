@@ -10,7 +10,7 @@ import events._
 
 import SessionState.SessionState
 
-class LoginServer(val port: Int) extends ServerTrait[LoginSession] {
+class Server(val listenAddress: String, val port: Int) extends ServerTrait[LoginSession] {
   def initSession(socket: SocketHandle) = LoginSession(socket)
   val sessions : HashMap[UUID, LoginSession] = HashMap.empty
 
