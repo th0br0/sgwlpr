@@ -7,13 +7,12 @@ object ProjectBuild extends Build {
 
   val Settings = Project.defaultSettings ++ Seq(
     resolvers += "Typesafe Releases" at "http://repo.typesafe.com/typesafe/releases",
-  //  resolvers += "repo.novus rels" at "http://repo.novus.com/releases/",
-    resolvers += "Novus Snapshots" at "http://repo.novus.com/snapshots/",
+    resolvers += "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots",
     scalaVersion := "2.9.2",
     
     libraryDependencies ++= Seq(
       "com.typesafe.akka" % "akka-actor" % "2.0.2",
-      "com.novus" %% "salat-core" % "0.0.8-SNAPSHOT"
+      "com.novus" %% "salat-core" % "1.9.0"
     ),
     scalacOptions ++= Seq("-unchecked", "-deprecation")
   )
@@ -21,8 +20,7 @@ object ProjectBuild extends Build {
   lazy val root = Project(
     id = "root",
     base = file("."),
-    settings = Project.defaultSettings ++ Seq(
-      resolvers += "Novus Snapshots" at "http://repo.novus.com/snapshots/",
+    settings = Settings ++ Seq(
       name := "SGWLPR",
       organization := "sgwlpr",
       version := "0.1-SNAPSHOT",

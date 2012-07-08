@@ -4,7 +4,7 @@ import java.util.Random
 
 import sgwlpr.packets._
 import sgwlpr.events._
-import sgwlpr.db.Account
+import sgwlpr.db._
 
 import c2l._
 import l2c._
@@ -32,12 +32,8 @@ class AccountHandler extends Handler {
     ))
   }
 
-  def handleDeleteCharacter(session: LoginSession, packet: DeleteCharacterPacket) = {
-    session.account = session.account.map { a => a.copy(characters = a.characters.filterNot(_.name.get == packet.characterName)) }
-    Account.save(session.account.get)
-
-    log.debug(session.account.get.characters.toString)
-
+  def handleCharacterDelete(session: LoginSession, packet: CharacterDeletePacket) = {
+    Character.deleteWithName(session.account.get, packet.characterName)
 
     // XXX - check whether deletion actually works / character exists
 
@@ -54,5 +50,5 @@ class AccountHandler extends Handler {
 
   addMessageHandler(manifest[c2l.Packet25Event], handlePasswordChange)
   addMessageHandler(manifest[PlayPacketEvent], handlePlay)
-  addMessageHandler(manifest[DeleteCharacterPacketEvent], handleDeleteCharacter)
+  addMessageHandler(manifest[CharacterDeletePacketEvent], handleCharacterDelete)
 }

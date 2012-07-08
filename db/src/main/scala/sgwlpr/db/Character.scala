@@ -2,8 +2,16 @@ package sgwlpr.db
 
 import sgwlpr.types._
 
+import com.mongodb.casbah.Imports
+import com.novus.salat.annotations._
+import com.mongodb.casbah.Imports._
+import com.novus.salat._
+
+
 // TODO: make profession & campaign a proper enumeration 
-case class Character(name: Option[String] = None, 
+case class Character(@Key("_id") id: ObjectId = new ObjectId,
+                     parentId: ObjectId,
+                     name: Option[String] = None, 
                      level: Int = 1,
                      isPvp: Boolean = false,
                      mapId: Option[Int] = None,
@@ -57,4 +65,20 @@ object CharacterAppearance {
     hairstyle = (data(3) & 0x1F).toByte,
     face = (((data(1) >> 7) | (data(2) << 1)) & 0x1F).toByte
   )
+}
+
+object Character {
+  implicit def wc = AccountDAO.defaultWriteConcern
+
+  def create(acc: Character) = AccountDAO.characters.save(acc)
+  def delete(acc: Character) = AccountDAO.characters.remove(MongoDBObject("_id" -> acc.id))
+  def update(acc: Character) = AccountDAO.characters.update(
+    q = MongoDBObject("_id" -> acc.id),
+    t = acc,
+    upsert = false,
+    multi = false,
+    wc = new WriteConcern())
+
+  def findByParent(acc: Account) = AccountDAO.characters.findByParentId(acc.id).toList
+  def deleteWithName(acc: Account, name: String) = AccountDAO.characters.remove(MongoDBObject("parentId" -> acc.id, "name" -> name))
 }

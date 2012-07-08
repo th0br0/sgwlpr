@@ -4,7 +4,7 @@ import java.util.Random
 
 import sgwlpr.packets._
 import sgwlpr.events._
-import sgwlpr.db.Account
+import sgwlpr.db._
 
 import c2l._
 import l2c._
@@ -49,13 +49,9 @@ class AuthenticationHandler extends Handler {
       return
     }
 
-    session.account.get.characters.foreach { c => 
-    log.debug(c.appearance.get.toString)
-  } 
-
     // Login successful -- put this in a separate method?
     session.write(
-      session.account.get.characters.map {
+      Character.findByParent(session.account.get).map {
         c => new CharacterInfoPacket(
           heartbeat = session.heartbeat,
           hash = Iterator.fill(16)(0.toByte).toList,

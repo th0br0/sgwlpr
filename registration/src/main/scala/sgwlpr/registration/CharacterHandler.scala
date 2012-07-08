@@ -12,17 +12,19 @@ import sgwlpr.db._
 class CharacterHandler extends Handler {
   val agentId : AgentId = 50 
 
-  def createCharacter(session: RegistrationSession, packet: CreateNewCharacterPacket) = {
+  def createCharacter(session: RegistrationSession, packet: CharacterCreatePacket) = {
     session.write(List(
       new UpdateAttributePointsPacket(agentId, 0, 0),
       new UpdateIntValuePacket(64, agentId, 0),
-      new CreateNewCharacterAcknowledgePacket
+      new CharacterCreateAckPacket
     ))
+
+    session.character = Some(new Character(parentId = session.account.get.id))
 
     log.debug("weird shit!")
   }
 
-  def setCharacterProfession(session: RegistrationSession, packet: SetCharacterProfessionPacket) = {
+  def setCharacterProfession(session: RegistrationSession, packet: CharacterSetProfessionPacket) = {
     // Set initial map based upon campaign!
     val startMap = packet.campaign match {
       case 0 => /* pvp */ 248
@@ -34,7 +36,7 @@ class CharacterHandler extends Handler {
     // XXX - this should be an implicit or the like
     val isPvp : Byte = {if (packet.campaign == 1) 1 else 0 }.toByte
 
-    session.character = session.character.copy(isPvp = packet.campaign == 1, mapId = Some(startMap))
+    session.character = session.character.map (_.copy(isPvp = packet.campaign == 1, mapId = Some(startMap)))
 
     // XXX - this is an awkward packet name
     session.write(new UpdatePrivateProfessionsPacket(
@@ -43,22 +45,21 @@ class CharacterHandler extends Handler {
 
   }
 
-  def validateNewCharacter(session: RegistrationSession, packet: ValidateNewCharacterPacket) = {
-    session.character = session.character.copy(name = Some(packet.characterName), appearance = Some(CharacterAppearance(packet.data)))
+  def validateNewCharacter(session: RegistrationSession, packet: CharacterValidatePacket) = {
+    session.character = session.character.map(_.copy(name = Some(packet.characterName), appearance = Some(CharacterAppearance(packet.data))))
+    Character.create(session.character.get)
 
-    session.account = session.account.map { a => a.copy(characters = session.character :: a.characters) }
-
-    Account.save(session.account.get)
-
-    session.write(new Packet378(
-      hash = Iterator.fill(16)(0.toByte).toList,
-      characterName = session.character.name.get,
-      mapId = session.character.mapId.get,
-      characterData = session.character.toBytes
-    ))
+    session.character.map { char => 
+      session.write(new Packet378(
+        hash = Iterator.fill(16)(0.toByte).toList,
+        characterName = char.name.get,
+        mapId = char.mapId.get,
+        characterData = char.toBytes
+      ))
+    }
   }
 
-  addMessageHandler(manifest[CreateNewCharacterPacketEvent], createCharacter)
-  addMessageHandler(manifest[SetCharacterProfessionPacketEvent], setCharacterProfession)
-  addMessageHandler(manifest[ValidateNewCharacterPacketEvent], validateNewCharacter)
+  addMessageHandler(manifest[CharacterCreatePacketEvent], createCharacter)
+  addMessageHandler(manifest[CharacterSetProfessionPacketEvent], setCharacterProfession)
+  addMessageHandler(manifest[CharacterValidatePacketEvent], validateNewCharacter)
 }

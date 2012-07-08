@@ -3141,6 +3141,7 @@
     </Packet>
     <Packet header="314">
       <Info>
+        <Name>ItemStreamCreate</Name>
         <Description>Auto generated</Description>
         <Author>GWLPR Template Updater</Author>
       </Info>
@@ -3709,10 +3710,11 @@
     </Packet>
     <Packet header="371">
       <Info>
+        <Name>InstanceLoadCharacterName</Name>
         <Description>Auto generated</Description>
         <Author>GWLPR Template Updater</Author>
       </Info>
-      <Field occurs="20" prefixType="int16" static="false" type="utf16"/>
+      <Field occurs="20" prefixType="int16" static="false" type="utf16"><Info><Name>characterName</Name></Info></Field>
     </Packet>
     <Packet header="372">
       <Info>
@@ -3777,7 +3779,7 @@
     </Packet>
     <Packet header="380">
       <Info>
-        <Name>CreateNewCharacterAcknowledge</Name>
+        <Name>CharacterCreateAck</Name>
         <Description>Auto generated</Description>
         <Author>GWLPR Template Updater</Author>
       </Info>
@@ -3899,15 +3901,16 @@
     </Packet>
     <Packet header="395">
       <Info>
+        <Name>InstanceLoadDistrictInfo</Name>
         <Description>Auto generated</Description>
         <Author>GWLPR Template Updater</Author>
       </Info>
-      <Field type="agentid"/>
-      <Field type="int16"/>
-      <Field type="int8"/>
-      <Field type="int32"/>
-      <Field type="int8"/>
-      <Field type="int8"/>
+      <Field type="agentid"><Info><Name>characterId</Name></Info></Field>
+      <Field type="int16"><Info><Name>mapId</Name></Info></Field>
+      <Field type="int8"><Info><Name>isOutpost</Name></Info></Field>
+      <Field type="int32"><Info><Name>districtRegion</Name></Info></Field>
+      <Field type="int8"><Info><Name>language</Name></Info></Field>
+      <Field type="int8"><Info><Name>isObserver</Name></Info></Field>
     </Packet>
     <Packet header="396">
       <Info>
@@ -4723,7 +4726,7 @@
     </Packet>
     <Packet header="7">
       <Info>
-        <Name>DeleteCharacter</Name>
+        <Name>CharacterDelete</Name>
         <Description>Auto generated</Description>
         <Author>GWLPR Template Updater</Author>
       </Info>
@@ -5918,7 +5921,7 @@
     </Packet>
     <Packet header="88">
       <Info>
-        <Name>SetCharacterProfession</Name>
+        <Name>CharacterSetProfession</Name>
         <Description>Auto generated</Description>
         <Author>GWLPR Template Updater</Author>
       </Info>
@@ -6201,7 +6204,7 @@
     </Packet>
     <Packet header="125">
       <Info>
-        <Name>UpdateCharacterBodypart</Name>
+        <Name>CharacterUpdateBodypart</Name>
         <Description>Auto generated</Description>
         <Author>GWLPR Template Updater</Author>
       </Info>
@@ -6244,7 +6247,7 @@
     </Packet>
     <Packet header="130">
       <Info>
-        <Name>CreateNewCharacter</Name>
+        <Name>CharacterCreate</Name>
         <Description>Auto generated</Description>
         <Author>GWLPR Template Updater</Author>
       </Info>
@@ -6257,7 +6260,7 @@
     </Packet>
     <Packet header="132">
       <Info>
-        <Name>ValidateNewCharacter</Name>
+        <Name>CharacterValidate</Name>
         <Description>Auto generated</Description>
         <Author>GWLPR Template Updater</Author>
       </Info>
