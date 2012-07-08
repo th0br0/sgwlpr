@@ -6,6 +6,8 @@ object InventoryType extends Enumeration {
   val Uncollected = new Val(3)
   val Storage = new Val(4)
   val MaterialStorage = new Val(5)
+
+  implicit def value2byte(v: Value) : Byte = v.id.toByte
 }
 
 object StorageType extends Enumeration {
@@ -26,6 +28,8 @@ object StorageType extends Enumeration {
   val Storage8 = new Val(14)
   val StorageAnniversary = new Val(15)
   val Equipped = new Val(16)
+  
+  implicit def value2byte(v: Value) : Byte = v.id.toByte
 }
 
 object ItemType extends Enumeration{
@@ -66,6 +70,8 @@ object ItemType extends Enumeration{
   val Handbook = new Val(43)
   val CostumeBody = new Val(44)
   val CostumeHead = new Val(45)
+
+  implicit def value2byte(v: Value) : Byte = v.id.toByte
 }
 
 object ItemFlag extends Enumeration{

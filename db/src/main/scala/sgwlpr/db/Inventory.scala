@@ -10,9 +10,13 @@ import com.novus.salat._
 
 // TODO: make profession & campaign a proper enumeration 
 case class Inventory(@Key("_id") id: ObjectId = new ObjectId,
-                     parentId: ObjectId) {
-
+                     parentId: ObjectId,
+                     pages: List[InventoryPage] = List(InventoryPage(0, 9, InventoryType.Equipped, StorageType.Equipped)),
+                     gold: Int = 0) {
 }
+
+// Create ItemId type?
+case class InventoryPage(id: Int, slots: Int, inventoryType: InventoryType.Value, storageType: StorageType.Value, associatedItemId: Int = 0)
 
 object Inventory {
 
