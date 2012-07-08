@@ -2,6 +2,7 @@ package sgwlpr
 
 import login.LoginServer
 import registration.RegistrationServer
+import outpost.OutpostServer
 import akka.actor.{ActorSystem, Props}
 import com.typesafe.config.ConfigFactory
 
@@ -19,6 +20,7 @@ object Main extends App {
 
   system.actorOf(Props(new LoginServer(port)), name="login")
   system.actorOf(Props(new RegistrationServer(port + 1)), name="registration")
+  system.actorOf(Props(new OutpostServer(port + 2)), name="outpost148")
 
   while(readLine != "exit") {}
   system.shutdown

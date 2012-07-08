@@ -14,6 +14,7 @@ class AccountHandler extends Handler {
     session.account = Account.findByEmail(session.account.get.email)
     session.heartbeat = packet.heartbeat
 
+    session.characterName = Some(packet.characterName)
     // XXX - confirm validity of characterName, otherwise we've got some badly behaving client ;) 
 
     // XXX - should this really go in here? why not emit some event that causes these packets to be sent...
