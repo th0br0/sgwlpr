@@ -70,15 +70,23 @@ object CharacterAppearance {
 object Character {
   implicit def wc = AccountDAO.defaultWriteConcern
 
-  def create(acc: Character) = AccountDAO.characters.save(acc)
-  def delete(acc: Character) = AccountDAO.characters.remove(MongoDBObject("_id" -> acc.id))
-  def update(acc: Character) = AccountDAO.characters.update(
-    q = MongoDBObject("_id" -> acc.id),
-    t = acc,
+  def create(obj: Character) = {
+    CharacterDAO.save(obj)
+    // also create an empty inventory
+    InventoryDAO.save(new Inventory(parentId = obj.id))
+  }
+  def delete(obj: Character) = {
+    CharacterDAO.remove(MongoDBObject("_id" -> obj.id))
+    InventoryDAO.remove(MongoDBObject("parentId" -> obj.id))
+  }
+  def update(obj: Character) = CharacterDAO.update(
+    q = MongoDBObject("_id" -> obj.id),
+    t = obj,
     upsert = false,
     multi = false,
     wc = new WriteConcern())
 
-  def findByParent(acc: Account) = AccountDAO.characters.findByParentId(acc.id).toList
-  def deleteWithName(acc: Account, name: String) = AccountDAO.characters.remove(MongoDBObject("parentId" -> acc.id, "name" -> name))
+  // XXX - use the iterator, don't convert it to a list.
+  def findByParent(obj: Account) = CharacterDAO.find(MongoDBObject("parentId" -> obj.id)).toList
+  def deleteWithName(obj: Account, name: String) = CharacterDAO.findOne(MongoDBObject("parentId" -> obj.id, "name" -> name)).map(delete(_))
 }

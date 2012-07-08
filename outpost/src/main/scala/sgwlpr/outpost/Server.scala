@@ -30,6 +30,7 @@ class Server(val listenAddress: String, val port: Int, mapId: Int, districtInfo:
       
       // Just assume that this only returns one character, eh? :D
       newSession.character = db.Character.findByParent(session.account.get).find{ c => c.name == session.characterName }
+      newSession.inventory = db.Inventory.findByParent(newSession.character.get)
 
       true
     }
@@ -42,5 +43,6 @@ class Server(val listenAddress: String, val port: Int, mapId: Int, districtInfo:
     super.preStart
 
     context.actorOf(Props(new ClientAcceptedHandler(districtInfo)), name="clientAccepted")
+    context.actorOf(Props(new InventoryHandler(mapId)), name="inventory")
   }
 }

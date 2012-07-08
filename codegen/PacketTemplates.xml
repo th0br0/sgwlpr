@@ -3098,31 +3098,34 @@
     </Packet>
     <Packet header="309">
       <Info>
+        <Name>CreateInventoryPage</Name>
         <Description>Auto generated</Description>
         <Author>GWLPR Template Updater</Author>
       </Info>
-      <Field type="int16"/>
-      <Field type="int8"/>
-      <Field type="int8"/>
-      <Field type="int16"/>
-      <Field type="int8"/>
-      <Field type="int32"/>
+      <Field type="int16"><Info><Name>streamId</Name></Info></Field>
+      <Field type="int8"><Info><Name>inventoryType</Name></Info></Field>
+      <Field type="int8"><Info><Name>storageType</Name></Info></Field>
+      <Field type="int16"><Info><Name>pageId</Name></Info></Field>
+      <Field type="int8"><Info><Name>slotCount</Name></Info></Field>
+      <Field type="int32"><Info><Name>associatedItemId</Name></Info></Field>
     </Packet>
     <Packet header="310">
       <Info>
+        <Name>UpdateGoldOnCharacter</Name>
         <Description>Auto generated</Description>
         <Author>GWLPR Template Updater</Author>
       </Info>
-      <Field type="int16"/>
-      <Field type="int32"/>
+      <Field type="int16"><Info><Name>streamId</Name></Info></Field>
+      <Field type="int32"><Info><Name>amount</Name></Info></Field>
     </Packet>
     <Packet header="311">
       <Info>
+        <Name>UpdateGoldInStorage</Name>
         <Description>Auto generated</Description>
         <Author>GWLPR Template Updater</Author>
       </Info>
-      <Field type="int16"/>
-      <Field type="int32"/>
+      <Field type="int16"><Info><Name>streamId</Name></Info></Field>
+      <Field type="int32"><Info><Name>amount</Name></Info></Field>
     </Packet>
     <Packet header="312">
       <Info>
@@ -3145,8 +3148,8 @@
         <Description>Auto generated</Description>
         <Author>GWLPR Template Updater</Author>
       </Info>
-      <Field type="int16"/>
-      <Field type="int8"/>
+      <Field type="int16"><Info><Name>streamId</Name></Info></Field>
+      <Field type="int8"><Info><Name>streamType</Name><Value>0</Value></Info></Field>
     </Packet>
     <Packet header="315">
       <Info>
@@ -3178,11 +3181,12 @@
     </Packet>
     <Packet header="318">
       <Info>
+        <Name>UpdateActiveWeaponset</Name>
         <Description>Auto generated</Description>
         <Author>GWLPR Template Updater</Author>
       </Info>
-      <Field type="int16"/>
-      <Field type="int8"/>
+      <Field type="int16"><Info><Name>streamId</Name></Info></Field>
+      <Field type="int8"><Info><Name>activeSet</Name></Info></Field>
     </Packet>
     <Packet header="319">
       <Info>
@@ -3867,14 +3871,15 @@
     </Packet>
     <Packet header="391">
       <Info>
+        <Name>InstanceLoadSpawnPoint</Name>
         <Description>Auto generated</Description>
         <Author>GWLPR Template Updater</Author>
       </Info>
-      <Field type="int32"/>
-      <Field type="vec2"/>
-      <Field type="int16"/>
-      <Field type="int8"/>
-      <Field type="int8"/>
+      <Field type="int32"><Info><Name>mapFileId</Name></Info></Field>
+      <Field type="vec2"><Info><Name>position</Name></Info></Field>
+      <Field type="int16"><Info><Name>plane</Name></Info></Field>
+      <Field type="int8"><Info><Value>0</Value></Info></Field>
+      <Field type="int8"><Info><Name>isCinematic</Name><Value>0</Value></Info></Field>
     </Packet>
     <Packet header="392">
       <Info>
@@ -3885,12 +3890,13 @@
     </Packet>
     <Packet header="393">
       <Info>
+        <Name>ItemStreamTerminator</Name>
         <Description>Auto generated</Description>
         <Author>GWLPR Template Updater</Author>
       </Info>
-      <Field type="int8"/>
-      <Field type="int16"/>
-      <Field type="int32"/>
+      <Field type="int8"><Info><Value>0</Value></Info></Field>
+      <Field type="int16"><Info><Name>mapId</Name></Info></Field>
+      <Field type="int32"><Info><Value>0</Value></Info></Field>
     </Packet>
     <Packet header="394">
       <Info>
@@ -6241,6 +6247,7 @@
     </Packet>
     <Packet header="129">
       <Info>
+        <Name>RequestSpawnPoint</Name>
         <Description>Auto generated</Description>
         <Author>GWLPR Template Updater</Author>
       </Info>
@@ -6303,6 +6310,7 @@
     </Packet>
     <Packet header="138">
       <Info>
+        <Name>InstanceLoadItemsRequest</Name>
         <Description>Auto generated</Description>
         <Author>GWLPR Template Updater</Author>
       </Info>

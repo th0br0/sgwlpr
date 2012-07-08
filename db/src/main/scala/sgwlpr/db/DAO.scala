@@ -9,8 +9,11 @@ import com.mongodb.casbah.MongoConnection
 
 object AccountDAO extends SalatDAO[Account, ObjectId](collection = MongoConnection()("sgwlpr")("accounts")) {
 
-  // XXX - maybe this should rather be a standalone DAO?
-  val characters = new ChildCollection[Character, ObjectId](collection = MongoConnection()("sgwlpr")("characters"), parentIdField="parentId") {}
+}
 
+object CharacterDAO extends SalatDAO[Character, ObjectId](collection = MongoConnection()("sgwlpr")("characters")) {
+}
+
+object InventoryDAO extends SalatDAO[Inventory, ObjectId](collection = MongoConnection()("sgwlpr")("inventories")) {
 }
 
