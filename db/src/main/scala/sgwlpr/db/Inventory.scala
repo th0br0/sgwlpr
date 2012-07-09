@@ -30,5 +30,5 @@ object Inventory {
     multi = false,
     wc = new WriteConcern())
 
-  def findByParent(obj: Character) = InventoryDAO.findOne(MongoDBObject("_id" -> obj.id))
+  def findByParent(obj: Character) = InventoryDAO.findOne(MongoDBObject("parentId" -> obj.id))
 }

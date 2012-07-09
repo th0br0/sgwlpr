@@ -1,6 +1,8 @@
 package sgwlpr.outpost
 
+import akka.actor.ActorRef
 import akka.actor.IO.SocketHandle
+
 import com.eaio.uuid.UUID
 import scala.collection.mutable.HashMap
 
@@ -10,11 +12,13 @@ import events._
 
 import SessionState.SessionState
 import login.LoginSession
+import world.World
 
-class Server(val listenAddress: String, val port: Int, mapId: Int, districtInfo: DistrictInfo) extends GameServerTrait[OutpostSession] {
+class Server(val listenAddress: String, val port: Int, val mapId: Int, districtInfo: DistrictInfo) extends GameServerTrait[OutpostSession] {
   def initSession(socket: SocketHandle) = OutpostSession(socket)
   
   val sessions : HashMap[UUID, OutpostSession] = HashMap.empty
+  var world: ActorRef = self // XXX - another default value?
 
   def deserialiserForState(state: SessionState) : Deserialiser = state match {
     case SessionState.New => unenc.Deserialise
@@ -28,9 +32,10 @@ class Server(val listenAddress: String, val port: Int, mapId: Int, districtInfo:
   
       newSession.account = session.account
       
-      // Just assume that this only returns one character, eh? :D
       newSession.character = db.Character.findByParent(session.account.get).find{ c => c.name == session.characterName }
+      log.debug(newSession.character+"")
       newSession.inventory = db.Inventory.findByParent(newSession.character.get)
+      log.debug(newSession.inventory+ "")
 
       true
     }
@@ -42,7 +47,8 @@ class Server(val listenAddress: String, val port: Int, mapId: Int, districtInfo:
 
     super.preStart
 
-    context.actorOf(Props(new ClientAcceptedHandler(districtInfo)), name="clientAccepted")
-    context.actorOf(Props(new InventoryHandler(mapId)), name="inventory")
+    context.actorOf(Props(new ClientAcceptedHandler(mapId, districtInfo)), name="clientAccepted")
+    context.actorOf(Props(new RequestHandler), name="requests")
+    world = context.actorOf(Props(new World(mapId)), name="world")
   }
 }

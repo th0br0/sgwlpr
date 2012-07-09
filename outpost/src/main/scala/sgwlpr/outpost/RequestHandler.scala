@@ -9,8 +9,10 @@ import c2g._
 
 import sgwlpr.db._
 import sgwlpr.types._
+import sgwlpr.world.Request
 
-class InventoryHandler(mapId: Int) extends Handler {
+class RequestHandler extends Handler {
+  val world = context.actorFor("../world")
 
   private def inventoryPagePackets(streamId: Int, pages: List[InventoryPage]) : List[Packet] = pages.map { page =>
     new CreateInventoryPagePacket(
@@ -22,8 +24,10 @@ class InventoryHandler(mapId: Int) extends Handler {
       page.associatedItemId)
   }
 
-  def handleItemsRequest(session: OutpostSession, packet: InstanceLoadItemsRequestPacket) = { 
-    log.debug("Items request received")
+  def handleCharacterDataRequest(session: OutpostSession, packet: RequestCharacterDataPacket) = session.player.get ! Request('CharacterData)
+  def handleSpawnPointRequest(session: OutpostSession, packet: RequestSpawnPointPacket)= session.player.get ! Request('SpawnPoint)
+
+    /*
     val streamId = 0x42
 
     session.write(new ItemStreamCreatePacket(streamId = streamId))
@@ -33,8 +37,8 @@ class InventoryHandler(mapId: Int) extends Handler {
       session.write(new UpdateGoldOnCharacterPacket(streamId = streamId, amount = inventory.gold))
     }
 
-    session.write(new ItemStreamTerminatorPacket(mapId = mapId))
-  }
+    session.write(new ItemStreamTerminatorPacket(mapId = mapId))*/
 
-  addMessageHandler(manifest[InstanceLoadItemsRequestPacketEvent], handleItemsRequest)
+  addMessageHandler(manifest[RequestCharacterDataPacketEvent], handleCharacterDataRequest)
+  addMessageHandler(manifest[RequestSpawnPointPacketEvent], handleSpawnPointRequest)
 }

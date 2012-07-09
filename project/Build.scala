@@ -53,6 +53,11 @@ object ProjectBuild extends Build {
     id = "db", base = file("db"), settings = Settings
   ) dependsOn(framework)
 
+  lazy val world = Project(
+    id = "world", base = file("world"),
+    settings = Settings
+  ) dependsOn(framework, db, packets)
+
   lazy val login = Project(
     id = "login", base = file("login"), settings = Settings
   ) dependsOn(framework, packets, db)
@@ -63,16 +68,12 @@ object ProjectBuild extends Build {
 
   lazy val outpost = Project(
     id = "outpost", base = file("outpost"), settings = Settings
-  ) dependsOn(framework, packets, login, db)
+  ) dependsOn(framework, packets, login, db, world)
 
   lazy val manager = Project(
     id = "manager", base = file("manager"),
     settings = Settings
   ) dependsOn(registration, outpost, framework)
 
-  lazy val world = Project(
-    id = "world", base = file("world"),
-    settings = Settings
-  ) dependsOn(framework)
 
 }

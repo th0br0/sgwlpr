@@ -6310,7 +6310,7 @@
     </Packet>
     <Packet header="138">
       <Info>
-        <Name>InstanceLoadItemsRequest</Name>
+        <Name>RequestCharacterData</Name>
         <Description>Auto generated</Description>
         <Author>GWLPR Template Updater</Author>
       </Info>

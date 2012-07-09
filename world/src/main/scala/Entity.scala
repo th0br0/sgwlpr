@@ -7,7 +7,9 @@ import akka.actor.ActorRef
 import akka.actor.ActorLogging
 
 class Entity(val name: String) extends Actor with ActorLogging{
+    // XXX - This might be confusing
     implicit val owner = this 
+    val world = context.actorFor("../../world")
 
     type Attr = BaseAttribute[_]
 
@@ -31,9 +33,10 @@ class Entity(val name: String) extends Actor with ActorLogging{
     def removeAttribute[T <: Attr](implicit m: Manifest[T]) = attributes.remove
     def removeBehaviour[T <: Behaviour](implicit m: Manifest[T]) = behaviours.remove
 
+    def publish(v: Any) = world ! v
 
     def receive = {
-      case evt: WorldEvent => behaviours.values.foreach (_.onMessage(evt))
+      case evt: Event => behaviours.values.foreach (_.onMessage(evt))
       case tick: Tick => behaviours.values.foreach (_.onUpdate(tick))
     }
 

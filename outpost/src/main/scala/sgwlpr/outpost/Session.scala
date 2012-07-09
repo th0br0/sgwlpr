@@ -1,6 +1,7 @@
 package sgwlpr.outpost
 
 import akka.actor.IO.SocketHandle
+import akka.actor.ActorRef
 
 import sgwlpr.Session
 
@@ -12,4 +13,5 @@ case class OutpostSession(socket: SocketHandle) extends Session {
   var character : Option[Character] = None
   var inventory : Option[Inventory] = None  
   var account: Option[Account] = None
+  var player: Option[ActorRef] = None
 }
