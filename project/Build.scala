@@ -73,6 +73,6 @@ object ProjectBuild extends Build {
   lazy val world = Project(
     id = "world", base = file("world"),
     settings = Settings
-  )
+  ) dependsOn(framework)
 
 }

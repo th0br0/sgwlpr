@@ -5,7 +5,7 @@ import akka.actor.ActorSystem
 import akka.actor.Props
 import org.specs2.mutable._
 
-class SimpleBehaviour(implicit owner: GameObject) extends Behaviour {
+class SimpleBehaviour(implicit owner: Entity) extends Behaviour {
   def onMessage = {
     case m: AttributeValueChanged[_] => {
       println(m.key)
@@ -22,13 +22,13 @@ class SimpleBehaviour(implicit owner: GameObject) extends Behaviour {
   }
 }
 
-class IntAttribute(implicit owner: GameObject) extends Attribute[Int](1337) {
+class IntAttribute(implicit owner: Entity) extends Attribute[Int](1337) {
   def emitValueChanged() = owner.self ! AttributeValueChanged[IntAttribute]
 }
 
 object Main extends Specification {
   val system = ActorSystem()
-  val go = system.actorOf(Props(new GameObject("test") {
+  val go = system.actorOf(Props(new Entity("test") {
       addBehaviour(new SimpleBehaviour)
       addAttribute(new IntAttribute)
     }), name="gotest")
