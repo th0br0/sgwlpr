@@ -70,4 +70,9 @@ object ProjectBuild extends Build {
     settings = Settings
   ) dependsOn(registration, outpost, framework)
 
+  lazy val world = Project(
+    id = "world", base = file("world"),
+    settings = Settings
+  )
+
 }
